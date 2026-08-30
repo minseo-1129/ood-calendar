@@ -15,7 +15,10 @@ class DoodleStroke {
 
   factory DoodleStroke.fromJson(Map<String, dynamic> json) {
     final rawPoints = json['points'] as List<dynamic>? ?? const <dynamic>[];
+    return DoodleStroke.fromLegacyPoints(rawPoints);
+  }
 
+  factory DoodleStroke.fromLegacyPoints(List<dynamic> rawPoints) {
     return DoodleStroke(
       rawPoints.map((raw) {
         final pair = raw as List<dynamic>;
@@ -25,6 +28,20 @@ class DoodleStroke {
         );
       }).toList(growable: false),
     );
+  }
+
+  factory DoodleStroke.fromDynamic(dynamic raw) {
+    if (raw is Map) {
+      return DoodleStroke.fromJson(
+        Map<String, dynamic>.from(raw),
+      );
+    }
+
+    if (raw is List) {
+      return DoodleStroke.fromLegacyPoints(raw);
+    }
+
+    throw const FormatException('Unsupported stroke format');
   }
 }
 
@@ -60,11 +77,7 @@ class DoodleEntry {
     return DoodleEntry(
       dateKey: json['dateKey'] as String,
       strokes: rawStrokes
-          .map(
-            (raw) => DoodleStroke.fromJson(
-              Map<String, dynamic>.from(raw as Map),
-            ),
-          )
+          .map(DoodleStroke.fromDynamic)
           .toList(growable: false),
       note: json['note'] as String? ?? '',
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -102,11 +115,7 @@ class DoodleDraft {
     return DoodleDraft(
       dateKey: json['dateKey'] as String,
       strokes: rawStrokes
-          .map(
-            (raw) => DoodleStroke.fromJson(
-              Map<String, dynamic>.from(raw as Map),
-            ),
-          )
+          .map(DoodleStroke.fromDynamic)
           .toList(growable: false),
       note: json['note'] as String? ?? '',
       updatedAt: DateTime.parse(json['updatedAt'] as String),
