@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 const Color kBackground = Color(0xFFF1E9DC);
-const Color kPaper = Color(0xFFFFFCF5);
+const Color kPaper = Color(0xFFFBF7ED);
 const Color kInk = Color(0xFF173143);
 const Color kMutedInk = Color(0xFF7E8B8B);
 const Color kSoftInk = Color(0xFFB5B6AE);

@@ -23,9 +23,9 @@ class DailySheet extends StatelessWidget {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: kInk.withAlpha(20),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
+            color: kInk.withAlpha(14),
+            blurRadius: 22,
+            offset: const Offset(0, 9),
           ),
         ],
       ),
@@ -53,20 +53,24 @@ class DoodleThumbnail extends StatelessWidget {
   const DoodleThumbnail({
     super.key,
     required this.strokes,
+    this.width = 42,
+    this.height = 56,
   });
 
   final List<DoodleStroke> strokes;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 30,
-      height: 40,
+      width: width,
+      height: height,
       child: CustomPaint(
         painter: DoodlePainter(
           strokes: strokes,
           currentStroke: const <Offset>[],
-          strokeWidth: 1.15,
+          strokeWidth: 1.35,
         ),
       ),
     );
@@ -278,21 +282,34 @@ class _PaperTexturePainter extends CustomPainter {
     );
 
     final fiberPaint = Paint()
-      ..color = const Color(0xFF9B8F7A).withAlpha(14)
-      ..strokeWidth = 0.55
+      ..color = const Color(0xFF9B8F7A).withAlpha(12)
+      ..strokeWidth = 0.45
       ..strokeCap = StrokeCap.round;
 
-    for (var i = 0; i < 72; i++) {
+    for (var i = 0; i < 58; i++) {
       final x = _noise(i * 1.71 + 3) * size.width;
       final y = _noise(i * 2.43 + 11) * size.height;
-      final length = 4 + _noise(i * 3.17 + 17) * 13;
-      final angle = (_noise(i * 4.19 + 23) - 0.5) * 0.5;
+      final length = 3 + _noise(i * 3.17 + 17) * 10;
+      final angle = (_noise(i * 4.19 + 23) - 0.5) * 0.42;
       final delta = Offset(math.cos(angle), math.sin(angle)) * length;
 
       canvas.drawLine(
         Offset(x, y),
         Offset(x, y) + delta,
         fiberPaint,
+      );
+    }
+
+    final speckPaint = Paint()
+      ..color = const Color(0xFFB6A992).withAlpha(8);
+
+    for (var i = 0; i < 42; i++) {
+      final x = _noise(i * 2.11 + 31) * size.width;
+      final y = _noise(i * 4.07 + 19) * size.height;
+      canvas.drawCircle(
+        Offset(x, y),
+        0.35 + _noise(i * 3.31 + 5) * 0.5,
+        speckPaint,
       );
     }
   }
@@ -306,38 +323,38 @@ class _DeckleClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    const step = 12.0;
-    const amount = 1.7;
+    const step = 18.0;
+    const amount = 1.1;
     final path = Path();
 
-    path.moveTo(2, 0);
+    path.moveTo(2, 1.5);
 
     for (double x = 2; x <= size.width - 2; x += step) {
-      final y = amount * math.sin(x * 0.11) +
-          0.7 * math.sin(x * 0.37 + 0.8);
-      path.lineTo(x, y + 1.8);
+      final y = amount * math.sin(x * 0.10) +
+          0.45 * math.sin(x * 0.31 + 0.8);
+      path.lineTo(x, y + 1.6);
     }
 
     for (double y = 2; y <= size.height - 2; y += step) {
       final x = size.width -
-          1.8 -
-          amount * math.sin(y * 0.13 + 1.2) -
-          0.6 * math.sin(y * 0.41);
+          1.6 -
+          amount * math.sin(y * 0.11 + 1.2) -
+          0.45 * math.sin(y * 0.34);
       path.lineTo(x, y);
     }
 
     for (double x = size.width - 2; x >= 2; x -= step) {
       final y = size.height -
-          1.8 -
-          amount * math.sin(x * 0.09 + 2.1) -
-          0.6 * math.sin(x * 0.31);
+          1.6 -
+          amount * math.sin(x * 0.08 + 2.1) -
+          0.45 * math.sin(x * 0.28);
       path.lineTo(x, y);
     }
 
     for (double y = size.height - 2; y >= 2; y -= step) {
-      final x = amount * math.sin(y * 0.12 + 0.4) +
-          0.6 * math.sin(y * 0.33 + 1.7) +
-          1.8;
+      final x = amount * math.sin(y * 0.10 + 0.4) +
+          0.45 * math.sin(y * 0.29 + 1.7) +
+          1.6;
       path.lineTo(x, y);
     }
 

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -55,10 +57,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Future<void> _openDate(DateTime date) async {
-    final today = DateTime.now();
-    final normalizedToday = DateTime(today.year, today.month, today.day);
-
-    if (date.isAfter(normalizedToday)) return;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (date.isAfter(today)) return;
 
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -89,48 +90,70 @@ class _CalendarScreenState extends State<CalendarScreen> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 18, 22, 24),
+            padding: const EdgeInsets.fromLTRB(22, 30, 22, 24),
             child: Column(
               children: [
                 SizedBox(
-                  height: 44,
-                  child: Row(
+                  height: 46,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      _MonthArrow(
-                        label: '‹',
-                        onTap: () => _changeMonth(-1),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: _MonthArrow(
+                          label: '‹',
+                          onTap: () => _changeMonth(-1),
+                        ),
                       ),
-                      Expanded(
+                      Center(
                         child: Text(
                           monthLabel(_visibleMonth),
-                          textAlign: TextAlign.center,
                           style: GoogleFonts.gaegu(
                             fontSize: 28,
                             fontWeight: FontWeight.w400,
                             letterSpacing: 0.8,
+                            height: 1,
                             color: kInk,
                           ),
                         ),
                       ),
-                      _MonthArrow(
-                        label: '›',
-                        onTap: () => _changeMonth(1),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: _MonthArrow(
+                          label: '›',
+                          onTap: () => _changeMonth(1),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 const _WeekdayRow(),
-                const SizedBox(height: 8),
+                const SizedBox(height: 18),
                 Expanded(
-                  child: AnimatedOpacity(
-                    opacity: _loading ? 0.55 : 1,
-                    duration: const Duration(milliseconds: 160),
-                    child: _MonthGrid(
-                      month: _visibleMonth,
-                      today: today,
-                      entries: _entries,
-                      onTapDate: _openDate,
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final gridHeight = math.min(
+                          468.0,
+                          constraints.maxHeight,
+                        );
+
+                        return AnimatedOpacity(
+                          opacity: _loading ? 0.55 : 1,
+                          duration: const Duration(milliseconds: 160),
+                          child: SizedBox(
+                            height: gridHeight,
+                            child: _MonthGrid(
+                              month: _visibleMonth,
+                              today: today,
+                              entries: _entries,
+                              onTapDate: _openDate,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -158,13 +181,14 @@ class _MonthArrow extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 42,
-        height: 42,
+        width: 44,
+        height: 44,
         child: Center(
           child: Text(
             label,
             style: GoogleFonts.gaegu(
-              fontSize: 27,
+              fontSize: 29,
+              height: 1,
               color: kMutedInk,
             ),
           ),
@@ -189,9 +213,10 @@ class _WeekdayRow extends StatelessWidget {
                 day,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.gaegu(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w300,
-                  color: kMutedInk.withAlpha(205),
+                  fontSize: 16,
+                  height: 1,
+                  fontWeight: FontWeight.w400,
+                  color: kMutedInk.withAlpha(220),
                 ),
               ),
             ),
@@ -280,66 +305,95 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateColor = isFuture
-        ? kSoftInk.withAlpha(105)
-        : isToday
-            ? kInk
-            : kInk.withAlpha(176);
-
     return GestureDetector(
       onTap: isFuture ? null : onTap,
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(2, 3, 2, 1),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 28,
-              child: Center(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isToday
-                        ? kAccent.withAlpha(30)
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    date.day.toString(),
-                    style: GoogleFonts.gaegu(
-                      fontSize: 18,
-                      fontWeight:
-                          isToday ? FontWeight.w500 : FontWeight.w400,
-                      color: dateColor,
-                    ),
-                  ),
+      child: Center(
+        child: entry != null
+            ? Container(
+                width: 48,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: isToday
+                      ? kAccent.withAlpha(24)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(16),
                 ),
+                alignment: Alignment.center,
+                child: DoodleThumbnail(
+                  strokes: entry!.strokes,
+                  width: 44,
+                  height: 58,
+                ),
+              )
+            : _DateOnlyCell(
+                date: date,
+                isToday: isToday,
+                isFuture: isFuture,
               ),
-            ),
-            const SizedBox(height: 2),
-            Expanded(
-              child: Center(
-                child: entry != null
-                    ? DoodleThumbnail(strokes: entry!.strokes)
-                    : isToday
-                        ? Text(
-                            '+',
-                            style: GoogleFonts.gaegu(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
-                              color: kAccent,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-              ),
-            ),
-          ],
-        ),
       ),
+    );
+  }
+}
+
+class _DateOnlyCell extends StatelessWidget {
+  const _DateOnlyCell({
+    required this.date,
+    required this.isToday,
+    required this.isFuture,
+  });
+
+  final DateTime date;
+  final bool isToday;
+  final bool isFuture;
+
+  @override
+  Widget build(BuildContext context) {
+    final dateColor = isFuture
+        ? kSoftInk.withAlpha(100)
+        : isToday
+            ? kInk
+            : kInk.withAlpha(205);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 3,
+          ),
+          decoration: BoxDecoration(
+            color: isToday
+                ? kAccent.withAlpha(30)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(11),
+          ),
+          child: Text(
+            date.day.toString(),
+            style: GoogleFonts.gaegu(
+              fontSize: 18,
+              height: 1,
+              fontWeight:
+                  isToday ? FontWeight.w500 : FontWeight.w400,
+              color: dateColor,
+            ),
+          ),
+        ),
+        if (isToday) ...[
+          const SizedBox(height: 5),
+          Text(
+            '+',
+            style: GoogleFonts.gaegu(
+              fontSize: 19,
+              height: 1,
+              fontWeight: FontWeight.w400,
+              color: kAccent,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
