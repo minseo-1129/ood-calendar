@@ -66,7 +66,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     final index = target.difference(_startDate).inDays.clamp(
           0,
           _today.difference(_startDate).inDays,
-        );
+        ).toInt();
 
     final nextController = PageController(initialPage: index);
     final previousController = _controller;
