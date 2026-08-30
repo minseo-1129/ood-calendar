@@ -20,7 +20,7 @@ void main() {
     expect(decoded.points.last.dy, 0.9);
   });
 
-  test('date labels are real values, not template text', () {
+  test('date labels are real values', () {
     final date = DateTime(2026, 8, 30);
     expect(dateKey(date), '20260830');
     expect(drawingDateLabel(date), 'AUG 30');

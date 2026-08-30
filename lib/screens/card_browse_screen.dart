@@ -15,31 +15,32 @@ class CardBrowseScreen extends StatefulWidget {
   const CardBrowseScreen({
     super.key,
     required this.store,
-    required this.initialDateKey,
+    required this.initialDate,
   });
 
   final EntryStore store;
-  final String initialDateKey;
+  final DateTime initialDate;
 
   @override
   State<CardBrowseScreen> createState() => _CardBrowseScreenState();
 }
 
 class _CardBrowseScreenState extends State<CardBrowseScreen> {
-  List<DoodleEntry> _entries = <DoodleEntry>[];
+  Map<String, DoodleEntry> _entries = <String, DoodleEntry>{};
   PageController? _controller;
+  late DateTime _startDate;
+  late DateTime _today;
   int _index = 0;
   bool _loading = true;
 
-  DoodleEntry? get _current {
-    if (_entries.isEmpty) return null;
-    return _entries[_index];
-  }
+  DateTime get _currentDate => _startDate.add(Duration(days: _index));
+  DoodleEntry? get _currentEntry => _entries[dateKey(_currentDate)];
 
   @override
   void initState() {
     super.initState();
-    _loadEntries(focusKey: widget.initialDateKey);
+    _today = _dayOnly(DateTime.now());
+    _load();
   }
 
   @override
@@ -48,15 +49,24 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     super.dispose();
   }
 
-  Future<void> _loadEntries({required String focusKey}) async {
+  Future<void> _load({DateTime? focusDate}) async {
     final all = await widget.store.loadAll();
-    final entries = all.values.toList()
-      ..sort((a, b) => a.dateKey.compareTo(b.dateKey));
 
-    var index = entries.indexWhere((entry) => entry.dateKey == focusKey);
-    if (index < 0) {
-      index = entries.isEmpty ? 0 : entries.length - 1;
+    DateTime earliest = _dayOnly(focusDate ?? widget.initialDate);
+    for (final entry in all.values) {
+      final entryDate = dateFromKey(entry.dateKey);
+      if (entryDate.isBefore(earliest)) {
+        earliest = entryDate;
+      }
     }
+
+    _startDate = DateTime(earliest.year, earliest.month, 1);
+
+    final target = _dayOnly(focusDate ?? widget.initialDate);
+    final index = target.difference(_startDate).inDays.clamp(
+          0,
+          _today.difference(_startDate).inDays,
+        );
 
     final nextController = PageController(initialPage: index);
     final previousController = _controller;
@@ -67,7 +77,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     setState(() {
-      _entries = entries;
+      _entries = all;
       _index = index;
       _controller = nextController;
       _loading = false;
@@ -77,12 +87,10 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
   }
 
   Future<void> _editCurrent() async {
-    final current = _current;
-    if (current == null) return;
+    final date = _currentDate;
+    if (!isSameDay(date, _today)) return;
 
-    final date = dateFromKey(current.dateKey);
-    if (!isSameDay(date, DateTime.now())) return;
-
+    final existing = _currentEntry;
     final draft = await widget.store.loadDraft(date);
     if (!mounted) return;
 
@@ -91,8 +99,9 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
         builder: (_) => DrawingScreen(
           store: widget.store,
           date: date,
-          initialStrokes: draft?.strokes ?? current.strokes,
-          initialNote: draft?.note ?? current.note,
+          initialStrokes:
+              draft?.strokes ?? existing?.strokes ?? const <DoodleStroke>[],
+          initialNote: draft?.note ?? existing?.note ?? '',
         ),
       ),
     );
@@ -106,13 +115,19 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
           date: date,
           strokes: drawing.strokes,
           initialNote: drawing.note,
-          existingEntry: current,
+          existingEntry: existing,
         ),
       ),
     );
 
     if (saved == null || !mounted) return;
-    await _loadEntries(focusKey: saved.dateKey);
+
+    setState(() {
+      _entries = <String, DoodleEntry>{
+        ..._entries,
+        saved.dateKey: saved,
+      };
+    });
   }
 
   void _previous() {
@@ -125,13 +140,15 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
   }
 
   void _next() {
-    if (_controller == null || _index >= _entries.length - 1) return;
+    if (_controller == null || _index >= _pageCount - 1) return;
     _controller!.animateToPage(
       _index + 1,
       duration: const Duration(milliseconds: 280),
       curve: Curves.easeOutCubic,
     );
   }
+
+  int get _pageCount => _today.difference(_startDate).inDays + 1;
 
   @override
   Widget build(BuildContext context) {
@@ -141,27 +158,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
       );
     }
 
-    if (_entries.isEmpty) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Text(
-              '아직 모인 카드가 없어요',
-              style: GoogleFonts.gaegu(
-                fontSize: 20,
-                color: kMutedInk,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    final current = _current!;
-    final editable = isSameDay(
-      dateFromKey(current.dateKey),
-      DateTime.now(),
-    );
+    final editable = isSameDay(_currentDate, _today);
 
     return Scaffold(
       body: SafeArea(
@@ -193,9 +190,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     ),
                     Center(
                       child: Text(
-                        drawingDateLabel(
-                          dateFromKey(current.dateKey),
-                        ),
+                        drawingDateLabel(_currentDate),
                         style: GoogleFonts.gaegu(
                           fontSize: 29,
                           fontWeight: FontWeight.w400,
@@ -215,23 +210,27 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                           ),
                           child: Text(
                             '수정',
-                            style: GoogleFonts.gaegu(fontSize: 18),
+                            style: GoogleFonts.gaegu(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 18),
               Expanded(
                 child: PageView.builder(
                   controller: _controller,
-                  itemCount: _entries.length,
+                  itemCount: _pageCount,
                   onPageChanged: (index) {
                     setState(() => _index = index);
                   },
                   itemBuilder: (context, index) {
-                    final entry = _entries[index];
+                    final date = _startDate.add(Duration(days: index));
+                    final entry = _entries[dateKey(date)];
 
                     return Column(
                       children: [
@@ -253,7 +252,8 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                                   width: sheetWidth,
                                   height: sheetWidth * 4 / 3,
                                   child: DailySheet(
-                                    strokes: entry.strokes,
+                                    strokes:
+                                        entry?.strokes ?? const <DoodleStroke>[],
                                     strokeWidth: 3.0,
                                   ),
                                 );
@@ -261,11 +261,11 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 22),
                         SizedBox(
-                          height: 32,
+                          height: 36,
                           child: Center(
-                            child: entry.note.isEmpty
+                            child: entry == null || entry.note.isEmpty
                                 ? const SizedBox.shrink()
                                 : Text(
                                     entry.note,
@@ -282,7 +282,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   _BrowseArrow(
@@ -290,21 +290,10 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     enabled: _index > 0,
                     onTap: _previous,
                   ),
-                  Expanded(
-                    child: Text(
-                      (_index + 1).toString() +
-                          ' / ' +
-                          _entries.length.toString(),
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.gaegu(
-                        fontSize: 15,
-                        color: kSoftInk,
-                      ),
-                    ),
-                  ),
+                  const Spacer(),
                   _BrowseArrow(
                     label: '→',
-                    enabled: _index < _entries.length - 1,
+                    enabled: _index < _pageCount - 1,
                     onTap: _next,
                   ),
                 ],
@@ -348,4 +337,8 @@ class _BrowseArrow extends StatelessWidget {
       ),
     );
   }
+}
+
+DateTime _dayOnly(DateTime date) {
+  return DateTime(date.year, date.month, date.day);
 }

@@ -102,11 +102,10 @@ class _DrawingScreenState extends State<DrawingScreen> {
     );
   }
 
-  Future<void> _done() async {
+  Future<void> _next() async {
     if (!_canFinish) return;
 
     await _saveDraft();
-
     if (!mounted) return;
 
     Navigator.of(context).pop(
@@ -163,17 +162,17 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 12),
               Text(
                 '오늘 이상하게 기억나는 것 하나',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.gaegu(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w300,
-                  color: kMutedInk,
+                  fontSize: 21,
+                  fontWeight: FontWeight.w400,
+                  color: kInk.withAlpha(182),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 22),
               Expanded(
                 child: Center(
                   child: LayoutBuilder(
@@ -218,9 +217,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ),
                   const Spacer(),
                   _QuietAction(
-                    label: 'Done',
+                    label: 'Next',
                     enabled: _canFinish,
-                    onTap: _done,
+                    onTap: _next,
                     strong: true,
                   ),
                 ],

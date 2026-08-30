@@ -97,6 +97,11 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final maxPaperWidth = math.min(
+      292.0,
+      MediaQuery.sizeOf(context).width - 56,
+    );
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -139,30 +144,24 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: Center(
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final widthByHeight = constraints.maxHeight * 3 / 4;
-                      final sheetWidth = math.min(
-                        310.0,
-                        math.min(constraints.maxWidth, widthByHeight),
-                      );
-
-                      return SizedBox(
-                        width: sheetWidth,
-                        height: sheetWidth * 4 / 3,
-                        child: DailySheet(
-                          strokes: _strokes,
-                          strokeWidth: 3.0,
-                        ),
-                      );
-                    },
-                  ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: maxPaperWidth,
+                height: maxPaperWidth * 4 / 3,
+                child: DailySheet(
+                  strokes: _strokes,
+                  strokeWidth: 3.0,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 28),
+              Text(
+                '오늘을 한 줄로 남겨도 좋아요',
+                style: GoogleFonts.gaegu(
+                  fontSize: 17,
+                  color: kMutedInk.withAlpha(190),
+                ),
+              ),
+              const SizedBox(height: 6),
               TextField(
                 controller: _noteController,
                 maxLines: 1,
@@ -170,15 +169,15 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                 textAlign: TextAlign.center,
                 onChanged: _noteChanged,
                 style: GoogleFonts.gaegu(
-                  fontSize: 20,
-                  color: kMutedInk,
+                  fontSize: 21,
+                  color: kInk.withAlpha(205),
                 ),
                 decoration: InputDecoration(
                   counterText: '',
                   hintText: '한 줄 (선택)',
                   hintStyle: GoogleFonts.gaegu(
-                    fontSize: 20,
-                    color: kSoftInk,
+                    fontSize: 21,
+                    color: kMutedInk.withAlpha(135),
                   ),
                   border: InputBorder.none,
                   enabledBorder: InputBorder.none,
@@ -219,7 +218,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                         'Save',
                         style: GoogleFonts.gaegu(
                           fontSize: 20,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           letterSpacing: 0.7,
                           color: kInk,
                         ),
@@ -228,6 +227,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                   ),
                 ],
               ),
+              const Spacer(),
             ],
           ),
         ),

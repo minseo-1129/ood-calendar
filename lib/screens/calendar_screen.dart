@@ -7,8 +7,6 @@ import '../models/doodle_models.dart';
 import '../utils/date_labels.dart';
 import '../widgets/daily_sheet.dart';
 import 'card_browse_screen.dart';
-import 'compose_card_screen.dart';
-import 'drawing_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -37,7 +35,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Future<void> _loadMonth() async {
     final entries = await widget.store.loadMonth(_visibleMonth);
-
     if (!mounted) return;
 
     setState(() {
@@ -54,67 +51,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
       );
       _loading = true;
     });
-
     await _loadMonth();
   }
 
   Future<void> _openDate(DateTime date) async {
-    final entry = _entries[dateKey(date)];
     final today = DateTime.now();
+    final normalizedToday = DateTime(today.year, today.month, today.day);
 
-    if (entry != null) {
-      await Navigator.of(context).push<void>(
-        MaterialPageRoute(
-          builder: (_) => CardBrowseScreen(
-            store: widget.store,
-            initialDateKey: entry.dateKey,
-          ),
-        ),
-      );
-      await _loadMonth();
-      return;
-    }
-
-    if (!isSameDay(date, today)) return;
-
-    final draft = await widget.store.loadDraft(date);
-    if (!mounted) return;
-
-    final drawing = await Navigator.of(context).push<DoodleDraft>(
-      MaterialPageRoute(
-        builder: (_) => DrawingScreen(
-          store: widget.store,
-          date: date,
-          initialStrokes:
-              draft?.strokes ?? const <DoodleStroke>[],
-          initialNote: draft?.note ?? '',
-        ),
-      ),
-    );
-
-    if (drawing == null || !mounted) return;
-
-    final saved = await Navigator.of(context).push<DoodleEntry>(
-      MaterialPageRoute(
-        builder: (_) => ComposeCardScreen(
-          store: widget.store,
-          date: date,
-          strokes: drawing.strokes,
-          initialNote: drawing.note,
-        ),
-      ),
-    );
-
-    if (saved == null || !mounted) return;
-
-    await _loadMonth();
-    if (!mounted) return;
+    if (date.isAfter(normalizedToday)) return;
 
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => CardBrowseScreen(
           store: widget.store,
-          initialDateKey: saved.dateKey,
+          initialDate: date,
         ),
       ),
     );
@@ -132,7 +82,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           behavior: HitTestBehavior.translucent,
           onHorizontalDragEnd: (details) {
             final velocity = details.primaryVelocity ?? 0;
-
             if (velocity < -220) {
               _changeMonth(1);
             } else if (velocity > 220) {
@@ -175,7 +124,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 const SizedBox(height: 8),
                 Expanded(
                   child: AnimatedOpacity(
-                    opacity: _loading ? 0.45 : 1,
+                    opacity: _loading ? 0.55 : 1,
                     duration: const Duration(milliseconds: 160),
                     child: _MonthGrid(
                       month: _visibleMonth,
@@ -242,7 +191,7 @@ class _WeekdayRow extends StatelessWidget {
                 style: GoogleFonts.gaegu(
                   fontSize: 15,
                   fontWeight: FontWeight.w300,
-                  color: kSoftInk,
+                  color: kMutedInk.withAlpha(205),
                 ),
               ),
             ),
@@ -296,11 +245,15 @@ class _MonthGrid extends StatelessWidget {
             );
             final entry = entries[dateKey(date)];
             final isToday = isSameDay(date, today);
+            final isFuture = date.isAfter(
+              DateTime(today.year, today.month, today.day),
+            );
 
             return _DayCell(
               date: date,
               entry: entry,
               isToday: isToday,
+              isFuture: isFuture,
               onTap: () => onTapDate(date),
             );
           },
@@ -315,31 +268,56 @@ class _DayCell extends StatelessWidget {
     required this.date,
     required this.entry,
     required this.isToday,
+    required this.isFuture,
     required this.onTap,
   });
 
   final DateTime date;
   final DoodleEntry? entry;
   final bool isToday;
+  final bool isFuture;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final tappable = entry != null || isToday;
+    final dateColor = isFuture
+        ? kSoftInk.withAlpha(105)
+        : isToday
+            ? kInk
+            : kInk.withAlpha(176);
 
     return GestureDetector(
-      onTap: tappable ? onTap : null,
+      onTap: isFuture ? null : onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(2, 3, 2, 1),
         child: Column(
           children: [
-            Text(
-              date.day.toString(),
-              style: GoogleFonts.gaegu(
-                fontSize: 16,
-                fontWeight: isToday ? FontWeight.w400 : FontWeight.w300,
-                color: isToday ? kInk : kMutedInk,
+            SizedBox(
+              height: 28,
+              child: Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isToday
+                        ? kAccent.withAlpha(30)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    date.day.toString(),
+                    style: GoogleFonts.gaegu(
+                      fontSize: 18,
+                      fontWeight:
+                          isToday ? FontWeight.w500 : FontWeight.w400,
+                      color: dateColor,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -352,8 +330,8 @@ class _DayCell extends StatelessWidget {
                             '+',
                             style: GoogleFonts.gaegu(
                               fontSize: 20,
-                              fontWeight: FontWeight.w300,
-                              color: kMutedInk,
+                              fontWeight: FontWeight.w400,
+                              color: kAccent,
                             ),
                           )
                         : const SizedBox.shrink(),
