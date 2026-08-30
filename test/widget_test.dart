@@ -20,6 +20,18 @@ void main() {
     expect(decoded.points.last.dy, 0.9);
   });
 
+  test('legacy stroke format still loads', () {
+    final stroke = DoodleStroke.fromDynamic(
+      const <dynamic>[
+        <double>[0.2, 0.3],
+        <double>[0.7, 0.8],
+      ],
+    );
+
+    expect(stroke.points.length, 2);
+    expect(stroke.points.first, const Offset(0.2, 0.3));
+  });
+
   test('date labels are real values', () {
     final date = DateTime(2026, 8, 30);
     expect(dateKey(date), '20260830');
