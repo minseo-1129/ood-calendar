@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
+import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
 import '../utils/date_labels.dart';
@@ -17,12 +18,14 @@ class DrawingScreen extends StatefulWidget {
     required this.date,
     required this.initialStrokes,
     required this.initialNote,
+    required this.initialPrompt,
   });
 
   final EntryStore store;
   final DateTime date;
   final List<DoodleStroke> initialStrokes;
   final String initialNote;
+  final String initialPrompt;
 
   @override
   State<DrawingScreen> createState() => _DrawingScreenState();
@@ -30,6 +33,7 @@ class DrawingScreen extends StatefulWidget {
 
 class _DrawingScreenState extends State<DrawingScreen> {
   late final List<DoodleStroke> _strokes;
+  late final String _prompt;
   List<Offset> _currentStroke = <Offset>[];
   Offset? _lastLocalPoint;
 
@@ -40,6 +44,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
   void initState() {
     super.initState();
     _strokes = List<DoodleStroke>.of(widget.initialStrokes);
+    _prompt = widget.initialPrompt.isEmpty
+        ? promptForDate(widget.date)
+        : widget.initialPrompt;
   }
 
   void _startStroke(PointerDownEvent event, Size size) {
@@ -99,6 +106,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
       date: widget.date,
       strokes: _strokes,
       note: widget.initialNote,
+      prompt: _prompt,
     );
   }
 
@@ -113,6 +121,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
         dateKey: dateKey(widget.date),
         strokes: List<DoodleStroke>.of(_strokes),
         note: widget.initialNote,
+        prompt: _prompt,
         updatedAt: DateTime.now(),
       ),
     );
@@ -147,7 +156,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Text(
-                    '오늘 이상하게 기억나는 것 하나',
+                    _prompt,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.gaegu(
                       fontSize: 20,

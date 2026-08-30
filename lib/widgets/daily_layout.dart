@@ -8,13 +8,13 @@ import '../utils/date_labels.dart';
 
 class DailyLayoutMetrics {
   static const double horizontalPadding = 24;
-  static const double topPadding = 28;
-  static const double headerHeight = 44;
+  static const double topPadding = 30;
+  static const double headerHeight = 46;
   static const double headerToPrompt = 28;
   static const double promptSlotHeight = 34;
-  static const double promptToPaper = 12;
+  static const double promptToPaper = 18;
   static const double paperMaxWidth = 288;
-  static const double paperToNote = 20;
+  static const double paperToNote = 18;
   static const double noteSlotHeight = 52;
   static const double noteToActions = 8;
   static const double actionHeight = 44;
@@ -23,6 +23,86 @@ class DailyLayoutMetrics {
     return math.min(
       paperMaxWidth,
       MediaQuery.sizeOf(context).width - horizontalPadding * 2,
+    );
+  }
+}
+
+class SodamHeader extends StatelessWidget {
+  const SodamHeader({
+    super.key,
+    required this.title,
+    this.onBack,
+    this.onForward,
+  });
+
+  final String title;
+  final VoidCallback? onBack;
+  final VoidCallback? onForward;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: DailyLayoutMetrics.headerHeight,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: onBack == null
+                ? null
+                : IconButton(
+                    onPressed: onBack,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 44,
+                      height: 44,
+                    ),
+                    icon: const Icon(
+                      Icons.chevron_left_rounded,
+                      size: 26,
+                      color: kMutedInk,
+                    ),
+                  ),
+          ),
+          Expanded(
+            child: Center(
+              child: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.gaegu(
+                    fontSize: 28,
+                    height: 1,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.5,
+                    color: kInk,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 44,
+            height: 44,
+            child: onForward == null
+                ? null
+                : IconButton(
+                    onPressed: onForward,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 44,
+                      height: 44,
+                    ),
+                    icon: const Icon(
+                      Icons.chevron_right_rounded,
+                      size: 26,
+                      color: kMutedInk,
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -39,41 +119,9 @@ class DailyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: DailyLayoutMetrics.headerHeight,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: InkResponse(
-              onTap: onBack,
-              radius: 24,
-              child: const SizedBox(
-                width: 44,
-                height: 44,
-                child: Icon(
-                  Icons.chevron_left_rounded,
-                  size: 26,
-                  color: kMutedInk,
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              drawingDateLabel(date),
-              style: GoogleFonts.gaegu(
-                fontSize: 28,
-                height: 1,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 0.5,
-                color: kInk,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return SodamHeader(
+      title: drawingDateLabel(date),
+      onBack: onBack,
     );
   }
 }

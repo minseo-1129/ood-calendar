@@ -7,7 +7,6 @@ import '../app/theme.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
 import '../navigation/quiet_route.dart';
-import '../utils/date_labels.dart';
 import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'drawing_screen.dart';
@@ -19,6 +18,7 @@ class ComposeCardScreen extends StatefulWidget {
     required this.date,
     required this.strokes,
     required this.initialNote,
+    required this.prompt,
     this.existingEntry,
   });
 
@@ -26,6 +26,7 @@ class ComposeCardScreen extends StatefulWidget {
   final DateTime date;
   final List<DoodleStroke> strokes;
   final String initialNote;
+  final String prompt;
   final DoodleEntry? existingEntry;
 
   @override
@@ -45,6 +46,10 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
     _noteController = TextEditingController(text: widget.initialNote);
 
     _noteFocus.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+
       if (_noteFocus.hasFocus) {
         Future<void>.delayed(const Duration(milliseconds: 180), () {
           if (_scrollController.hasClients) {
@@ -73,6 +78,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
         date: widget.date,
         strokes: _strokes,
         note: value,
+        prompt: widget.prompt,
       ),
     );
   }
@@ -85,6 +91,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
           date: widget.date,
           initialStrokes: _strokes,
           initialNote: _noteController.text,
+          initialPrompt: widget.prompt,
         ),
       ),
     );
@@ -100,9 +107,12 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   Future<void> _save() async {
     final now = DateTime.now();
     final entry = DoodleEntry(
-      dateKey: dateKey(widget.date),
+      dateKey: widget.date.year.toString().padLeft(4, '0') +
+          widget.date.month.toString().padLeft(2, '0') +
+          widget.date.day.toString().padLeft(2, '0'),
       strokes: List<DoodleStroke>.of(_strokes),
       note: _noteController.text.trim(),
+      prompt: widget.prompt,
       createdAt: widget.existingEntry?.createdAt ?? now,
       updatedAt: now,
     );
@@ -182,7 +192,9 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                           ),
                           decoration: InputDecoration(
                             counterText: '',
-                            hintText: '한 줄 설명을 남길 수 있어요',
+                            hintText: _noteFocus.hasFocus
+                                ? null
+                                : '한마디 덧붙이기',
                             hintStyle: GoogleFonts.gaegu(
                               fontSize: 19,
                               height: 1.15,

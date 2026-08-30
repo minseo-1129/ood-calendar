@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
+import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
 import '../navigation/quiet_route.dart';
@@ -98,6 +99,12 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     final draft = await widget.store.loadDraft(date);
     if (!mounted) return;
 
+    final prompt = draft?.prompt.isNotEmpty == true
+        ? draft!.prompt
+        : existing?.prompt.isNotEmpty == true
+            ? existing!.prompt
+            : promptForDate(date);
+
     final drawing = await Navigator.of(context).push<DoodleDraft>(
       quietRoute(
         DrawingScreen(
@@ -106,6 +113,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
           initialStrokes:
               draft?.strokes ?? existing?.strokes ?? const <DoodleStroke>[],
           initialNote: draft?.note ?? existing?.note ?? '',
+          initialPrompt: prompt,
         ),
       ),
     );
@@ -119,6 +127,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
           date: date,
           strokes: drawing.strokes,
           initialNote: drawing.note,
+          prompt: drawing.prompt,
           existingEntry: existing,
         ),
       ),
@@ -147,6 +156,11 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     final editable = isSameDay(_currentDate, _today);
     final paperWidth = DailyLayoutMetrics.paperWidth(context);
     final paperHeight = paperWidth * 4 / 3;
+    final promptText = _currentEntry?.prompt.isNotEmpty == true
+        ? _currentEntry!.prompt
+        : editable
+            ? promptForDate(_currentDate)
+            : '';
 
     return Scaffold(
       body: SafeArea(
@@ -166,8 +180,23 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
               const SizedBox(
                 height: DailyLayoutMetrics.headerToPrompt,
               ),
-              const SizedBox(
+              SizedBox(
                 height: DailyLayoutMetrics.promptSlotHeight,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: promptText.isEmpty
+                      ? const SizedBox.shrink()
+                      : Text(
+                          promptText,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.gaegu(
+                            fontSize: 17,
+                            height: 1,
+                            fontWeight: FontWeight.w400,
+                            color: kMutedInk.withAlpha(165),
+                          ),
+                        ),
+                ),
               ),
               const SizedBox(
                 height: DailyLayoutMetrics.promptToPaper,

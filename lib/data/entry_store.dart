@@ -79,12 +79,14 @@ class EntryStore {
     required DateTime date,
     required List<DoodleStroke> strokes,
     required String note,
+    required String prompt,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final draft = DoodleDraft(
       dateKey: dateKey(date),
       strokes: List<DoodleStroke>.of(strokes),
       note: note,
+      prompt: prompt,
       updatedAt: DateTime.now(),
     );
 

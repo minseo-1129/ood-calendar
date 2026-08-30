@@ -8,6 +8,7 @@ import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
 import '../navigation/quiet_route.dart';
 import '../utils/date_labels.dart';
+import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'card_browse_screen.dart';
 
@@ -91,42 +92,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
             }
           },
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 36, 22, 24),
+            padding: const EdgeInsets.fromLTRB(
+              22,
+              DailyLayoutMetrics.topPadding,
+              22,
+              24,
+            ),
             child: Column(
               children: [
-                SizedBox(
-                  height: 46,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: _MonthArrow(
-                          icon: Icons.chevron_left_rounded,
-                          onTap: () => _changeMonth(-1),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          monthLabel(_visibleMonth),
-                          style: GoogleFonts.gaegu(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w400,
-                            letterSpacing: 0.5,
-                            height: 1,
-                            color: kInk,
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: _MonthArrow(
-                          icon: Icons.chevron_right_rounded,
-                          onTap: () => _changeMonth(1),
-                        ),
-                      ),
-                    ],
-                  ),
+                SodamHeader(
+                  title: monthLabel(_visibleMonth),
+                  onBack: () => _changeMonth(-1),
+                  onForward: () => _changeMonth(1),
                 ),
                 const SizedBox(height: 34),
                 const _WeekdayRow(),
@@ -161,33 +138,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MonthArrow extends StatelessWidget {
-  const _MonthArrow({
-    required this.icon,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkResponse(
-      onTap: onTap,
-      radius: 24,
-      child: SizedBox(
-        width: 44,
-        height: 44,
-        child: Icon(
-          icon,
-          size: 26,
-          color: kMutedInk,
         ),
       ),
     );

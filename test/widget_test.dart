@@ -32,10 +32,24 @@ void main() {
     expect(stroke.points.first, const Offset(0.2, 0.3));
   });
 
+  test('legacy entries without prompt still load', () {
+    final entry = DoodleEntry.fromJson(
+      <String, dynamic>{
+        'dateKey': '20260831',
+        'strokes': const <dynamic>[],
+        'note': '',
+        'createdAt': '2026-08-31T00:00:00.000',
+        'updatedAt': '2026-08-31T00:00:00.000',
+      },
+    );
+
+    expect(entry.prompt, '');
+  });
+
   test('date labels use full month names', () {
-    final date = DateTime(2026, 8, 30);
-    expect(dateKey(date), '20260830');
-    expect(drawingDateLabel(date), 'August 30');
+    final date = DateTime(2026, 8, 31);
+    expect(dateKey(date), '20260831');
+    expect(drawingDateLabel(date), 'August 31');
     expect(monthLabel(date), 'August 2026');
   });
 }
