@@ -25,8 +25,8 @@ bool isSameDay(DateTime a, DateTime b) {
 
 String drawingDateLabel(DateTime date) {
   const months = <String>[
-    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
   ];
   return months[date.month - 1] + ' ' + date.day.toString();
 }

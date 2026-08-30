@@ -1,12 +1,12 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
+import '../navigation/quiet_route.dart';
 import '../utils/date_labels.dart';
+import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'compose_card_screen.dart';
 import 'drawing_screen.dart';
@@ -99,8 +99,8 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     if (!mounted) return;
 
     final drawing = await Navigator.of(context).push<DoodleDraft>(
-      MaterialPageRoute(
-        builder: (_) => DrawingScreen(
+      quietRoute(
+        DrawingScreen(
           store: widget.store,
           date: date,
           initialStrokes:
@@ -113,8 +113,8 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     if (drawing == null || !mounted) return;
 
     final saved = await Navigator.of(context).push<DoodleEntry>(
-      MaterialPageRoute(
-        builder: (_) => ComposeCardScreen(
+      quietRoute(
+        ComposeCardScreen(
           store: widget.store,
           date: date,
           strokes: drawing.strokes,
@@ -145,85 +145,35 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     final editable = isSameDay(_currentDate, _today);
-    final maxPaperWidth = math.min(
-      310.0,
-      MediaQuery.sizeOf(context).width - 48,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
+    final paperHeight = paperWidth * 4 / 3;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+          padding: const EdgeInsets.fromLTRB(
+            DailyLayoutMetrics.horizontalPadding,
+            DailyLayoutMetrics.topPadding,
+            DailyLayoutMetrics.horizontalPadding,
+            20,
+          ),
           child: Column(
             children: [
-              SizedBox(
-                height: 44,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        behavior: HitTestBehavior.opaque,
-                        child: SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: Center(
-                            child: Text(
-                              '‹',
-                              style: GoogleFonts.gaegu(
-                                fontSize: 29,
-                                height: 1,
-                                color: kMutedInk,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        drawingDateLabel(_currentDate),
-                        style: GoogleFonts.gaegu(
-                          fontSize: 29,
-                          height: 1,
-                          fontWeight: FontWeight.w400,
-                          letterSpacing: 1.2,
-                          color: kInk,
-                        ),
-                      ),
-                    ),
-                    if (editable)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: _editCurrent,
-                          behavior: HitTestBehavior.opaque,
-                          child: SizedBox(
-                            height: 44,
-                            child: Center(
-                              child: Text(
-                                'Edit',
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 18,
-                                  height: 1,
-                                  fontWeight: FontWeight.w400,
-                                  color: kMutedInk,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+              DailyHeader(
+                date: _currentDate,
+                onBack: () => Navigator.of(context).pop(),
               ),
-              const SizedBox(height: 18),
-              const SizedBox(height: 34),
-              const SizedBox(height: 8),
+              const SizedBox(
+                height: DailyLayoutMetrics.headerToPrompt,
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.promptSlotHeight,
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.promptToPaper,
+              ),
               SizedBox(
-                height: maxPaperWidth * 4 / 3 + 48,
+                height: paperHeight,
                 child: PageView.builder(
                   controller: _controller,
                   itemCount: _pageCount,
@@ -234,42 +184,63 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     final date = _startDate.add(Duration(days: index));
                     final entry = _entries[dateKey(date)];
 
-                    return Column(
-                      children: [
-                        SizedBox(
-                          width: maxPaperWidth,
-                          height: maxPaperWidth * 4 / 3,
-                          child: DailySheet(
-                            strokes:
-                                entry?.strokes ?? const <DoodleStroke>[],
-                            strokeWidth: 3.0,
-                          ),
+                    return Center(
+                      child: SizedBox(
+                        width: paperWidth,
+                        height: paperHeight,
+                        child: DailySheet(
+                          strokes:
+                              entry?.strokes ?? const <DoodleStroke>[],
+                          strokeWidth: 3.0,
                         ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 40,
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: entry == null || entry.note.isEmpty
-                                ? const SizedBox.shrink()
-                                : Text(
-                                    entry.note,
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.gaegu(
-                                      fontSize: 20,
-                                      height: 1,
-                                      color: kMutedInk,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ],
+                      ),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 4),
-              const SizedBox(height: 44),
+              const SizedBox(
+                height: DailyLayoutMetrics.paperToNote,
+              ),
+              SizedBox(
+                height: DailyLayoutMetrics.noteSlotHeight,
+                child: Center(
+                  child: _currentEntry == null ||
+                          _currentEntry!.note.isEmpty
+                      ? const SizedBox.shrink()
+                      : Text(
+                          _currentEntry!.note,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.gaegu(
+                            fontSize: 20,
+                            height: 1.1,
+                            color: kMutedInk,
+                          ),
+                        ),
+                ),
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.noteToActions,
+              ),
+              SizedBox(
+                height: DailyLayoutMetrics.actionHeight,
+                child: Row(
+                  children: [
+                    const SizedBox.shrink(),
+                    const Spacer(),
+                    if (editable)
+                      DailyTextAction(
+                        label: 'Edit',
+                        onTap: _editCurrent,
+                        strong: true,
+                      )
+                    else
+                      const SizedBox(
+                        width: 44,
+                        height: DailyLayoutMetrics.actionHeight,
+                      ),
+                  ],
+                ),
+              ),
               const Spacer(),
             ],
           ),

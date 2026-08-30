@@ -32,10 +32,10 @@ void main() {
     expect(stroke.points.first, const Offset(0.2, 0.3));
   });
 
-  test('date labels are real values', () {
+  test('date labels use full month names', () {
     final date = DateTime(2026, 8, 30);
     expect(dateKey(date), '20260830');
-    expect(drawingDateLabel(date), 'AUG 30');
+    expect(drawingDateLabel(date), 'August 30');
     expect(monthLabel(date), 'August 2026');
   });
 }

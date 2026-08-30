@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const Color kBackground = Color(0xFFF1E9DC);
-const Color kPaper = Color(0xFFFBF7ED);
-const Color kInk = Color(0xFF173143);
-const Color kMutedInk = Color(0xFF7E8B8B);
-const Color kSoftInk = Color(0xFFB5B6AE);
-const Color kAccent = Color(0xFF7C9A90);
+const Color kBackground = Color(0xFFF8F5EE);
+const Color kPaper = Color(0xFFFFFDF8);
+const Color kInk = Color(0xFF203748);
+const Color kMutedInk = Color(0xFF7C8888);
+const Color kSoftInk = Color(0xFFB9BCB7);
+const Color kAccent = Color(0xFF809B92);
 
 ThemeData buildSodamTheme() {
   final base = ThemeData(

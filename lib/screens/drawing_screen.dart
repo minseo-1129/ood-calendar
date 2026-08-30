@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,6 +7,7 @@ import '../app/theme.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
 import '../utils/date_labels.dart';
+import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 
 class DrawingScreen extends StatefulWidget {
@@ -120,24 +120,30 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final maxPaperWidth = math.min(
-      310.0,
-      MediaQuery.sizeOf(context).width - 48,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
+    final paperHeight = paperWidth * 4 / 3;
+    final paperSize = Size(paperWidth, paperHeight);
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+          padding: const EdgeInsets.fromLTRB(
+            DailyLayoutMetrics.horizontalPadding,
+            DailyLayoutMetrics.topPadding,
+            DailyLayoutMetrics.horizontalPadding,
+            20,
+          ),
           child: Column(
             children: [
-              _ScreenHeader(
+              DailyHeader(
                 date: widget.date,
                 onBack: () => Navigator.of(context).pop(),
               ),
-              const SizedBox(height: 18),
+              const SizedBox(
+                height: DailyLayoutMetrics.headerToPrompt,
+              ),
               SizedBox(
-                height: 34,
+                height: DailyLayoutMetrics.promptSlotHeight,
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Text(
@@ -152,20 +158,18 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(
+                height: DailyLayoutMetrics.promptToPaper,
+              ),
               SizedBox(
-                width: maxPaperWidth,
-                height: maxPaperWidth * 4 / 3,
+                width: paperWidth,
+                height: paperHeight,
                 child: Listener(
                   behavior: HitTestBehavior.opaque,
-                  onPointerDown: (event) => _startStroke(
-                    event,
-                    Size(maxPaperWidth, maxPaperWidth * 4 / 3),
-                  ),
-                  onPointerMove: (event) => _continueStroke(
-                    event,
-                    Size(maxPaperWidth, maxPaperWidth * 4 / 3),
-                  ),
+                  onPointerDown: (event) =>
+                      _startStroke(event, paperSize),
+                  onPointerMove: (event) =>
+                      _continueStroke(event, paperSize),
                   onPointerUp: (_) => _finishStroke(),
                   onPointerCancel: (_) => _finishStroke(),
                   child: DailySheet(
@@ -175,18 +179,26 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(
+                height: DailyLayoutMetrics.paperToNote,
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.noteSlotHeight,
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.noteToActions,
+              ),
               SizedBox(
-                height: 44,
+                height: DailyLayoutMetrics.actionHeight,
                 child: Row(
                   children: [
-                    _TextAction(
+                    DailyTextAction(
                       label: 'Undo',
                       enabled: _canUndo,
                       onTap: _undo,
                     ),
                     const Spacer(),
-                    _TextAction(
+                    DailyTextAction(
                       label: 'Next',
                       enabled: _canNext,
                       onTap: _next,
@@ -197,104 +209,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
               ),
               const Spacer(),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ScreenHeader extends StatelessWidget {
-  const _ScreenHeader({
-    required this.date,
-    required this.onBack,
-  });
-
-  final DateTime date;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: onBack,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Center(
-                  child: Text(
-                    '‹',
-                    style: GoogleFonts.gaegu(
-                      fontSize: 29,
-                      height: 1,
-                      color: kMutedInk,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              drawingDateLabel(date),
-              style: GoogleFonts.gaegu(
-                fontSize: 29,
-                height: 1,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1.2,
-                color: kInk,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TextAction extends StatelessWidget {
-  const _TextAction({
-    required this.label,
-    required this.enabled,
-    required this.onTap,
-    this.strong = false,
-  });
-
-  final String label;
-  final bool enabled;
-  final VoidCallback onTap;
-  final bool strong;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = enabled
-        ? (strong ? kInk : kMutedInk)
-        : kSoftInk.withAlpha(140);
-
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 4,
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.gaegu(
-            fontSize: 19,
-            height: 1,
-            fontWeight:
-                strong ? FontWeight.w500 : FontWeight.w400,
-            letterSpacing: 0.4,
-            color: color,
           ),
         ),
       ),

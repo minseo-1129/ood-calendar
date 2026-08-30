@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -7,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../app/theme.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
+import '../navigation/quiet_route.dart';
 import '../utils/date_labels.dart';
+import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'drawing_screen.dart';
 
@@ -34,17 +35,35 @@ class ComposeCardScreen extends StatefulWidget {
 class _ComposeCardScreenState extends State<ComposeCardScreen> {
   late List<DoodleStroke> _strokes;
   late final TextEditingController _noteController;
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _noteFocus = FocusNode();
 
   @override
   void initState() {
     super.initState();
     _strokes = List<DoodleStroke>.of(widget.strokes);
     _noteController = TextEditingController(text: widget.initialNote);
+
+    _noteFocus.addListener(() {
+      if (_noteFocus.hasFocus) {
+        Future<void>.delayed(const Duration(milliseconds: 180), () {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     _noteController.dispose();
+    _scrollController.dispose();
+    _noteFocus.dispose();
     super.dispose();
   }
 
@@ -60,8 +79,8 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
 
   Future<void> _editDrawing() async {
     final revised = await Navigator.of(context).push<DoodleDraft>(
-      MaterialPageRoute(
-        builder: (_) => DrawingScreen(
+      quietRoute(
+        DrawingScreen(
           store: widget.store,
           date: widget.date,
           initialStrokes: _strokes,
@@ -97,193 +116,113 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final maxPaperWidth = math.min(
-      310.0,
-      MediaQuery.sizeOf(context).width - 48,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
+    final paperHeight = paperWidth * 4 / 3;
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-          child: Column(
-            children: [
-              _ComposeHeader(
-                date: widget.date,
-                onBack: () => Navigator.of(context).pop(),
+        child: LayoutBuilder(
+          builder: (context, viewport) {
+            return SingleChildScrollView(
+              controller: _scrollController,
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(
+                DailyLayoutMetrics.horizontalPadding,
+                DailyLayoutMetrics.topPadding,
+                DailyLayoutMetrics.horizontalPadding,
+                20,
               ),
-              const SizedBox(height: 18),
-              const SizedBox(height: 34),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: maxPaperWidth,
-                height: maxPaperWidth * 4 / 3,
-                child: DailySheet(
-                  strokes: _strokes,
-                  strokeWidth: 3.0,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: viewport.maxHeight - 44,
                 ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 58,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      '오늘을 한 줄로 남겨도 좋아요',
-                      style: GoogleFonts.gaegu(
-                        fontSize: 16,
-                        height: 1,
-                        color: kMutedInk.withAlpha(185),
-                      ),
+                    DailyHeader(
+                      date: widget.date,
+                      onBack: () => Navigator.of(context).pop(),
                     ),
-                    const SizedBox(height: 1),
+                    const SizedBox(
+                      height: DailyLayoutMetrics.headerToPrompt,
+                    ),
+                    const SizedBox(
+                      height: DailyLayoutMetrics.promptSlotHeight,
+                    ),
+                    const SizedBox(
+                      height: DailyLayoutMetrics.promptToPaper,
+                    ),
                     SizedBox(
-                      height: 36,
-                      child: TextField(
-                        controller: _noteController,
-                        maxLines: 1,
-                        maxLength: 60,
-                        textAlign: TextAlign.center,
-                        onChanged: _noteChanged,
-                        style: GoogleFonts.gaegu(
-                          fontSize: 20,
-                          height: 1,
-                          color: kInk.withAlpha(205),
-                        ),
-                        decoration: InputDecoration(
-                          counterText: '',
-                          hintText: '한 줄 (선택)',
-                          hintStyle: GoogleFonts.gaegu(
+                      width: paperWidth,
+                      height: paperHeight,
+                      child: DailySheet(
+                        strokes: _strokes,
+                        strokeWidth: 3.0,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: DailyLayoutMetrics.paperToNote,
+                    ),
+                    SizedBox(
+                      height: DailyLayoutMetrics.noteSlotHeight,
+                      child: Center(
+                        child: TextField(
+                          controller: _noteController,
+                          focusNode: _noteFocus,
+                          maxLines: 1,
+                          maxLength: 60,
+                          textAlign: TextAlign.center,
+                          onChanged: _noteChanged,
+                          scrollPadding: const EdgeInsets.only(bottom: 160),
+                          style: GoogleFonts.gaegu(
                             fontSize: 20,
-                            height: 1,
-                            color: kMutedInk.withAlpha(130),
+                            height: 1.15,
+                            color: kInk.withAlpha(215),
                           ),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          isDense: true,
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 7),
+                          decoration: InputDecoration(
+                            counterText: '',
+                            hintText: '한 줄 설명을 남길 수 있어요',
+                            hintStyle: GoogleFonts.gaegu(
+                              fontSize: 19,
+                              height: 1.15,
+                              color: kMutedInk.withAlpha(145),
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            isDense: true,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 10),
+                          ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: DailyLayoutMetrics.noteToActions,
+                    ),
+                    SizedBox(
+                      height: DailyLayoutMetrics.actionHeight,
+                      child: Row(
+                        children: [
+                          DailyTextAction(
+                            label: 'Edit',
+                            onTap: _editDrawing,
+                          ),
+                          const Spacer(),
+                          DailyTextAction(
+                            label: 'Save',
+                            onTap: _save,
+                            strong: true,
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 4),
-              SizedBox(
-                height: 44,
-                child: Row(
-                  children: [
-                    _ComposeAction(
-                      label: 'Edit',
-                      onTap: _editDrawing,
-                    ),
-                    const Spacer(),
-                    _ComposeAction(
-                      label: 'Save',
-                      onTap: _save,
-                      strong: true,
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ComposeHeader extends StatelessWidget {
-  const _ComposeHeader({
-    required this.date,
-    required this.onBack,
-  });
-
-  final DateTime date;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: onBack,
-              behavior: HitTestBehavior.opaque,
-              child: SizedBox(
-                width: 44,
-                height: 44,
-                child: Center(
-                  child: Text(
-                    '‹',
-                    style: GoogleFonts.gaegu(
-                      fontSize: 29,
-                      height: 1,
-                      color: kMutedInk,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              drawingDateLabel(date),
-              style: GoogleFonts.gaegu(
-                fontSize: 29,
-                height: 1,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1.2,
-                color: kInk,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComposeAction extends StatelessWidget {
-  const _ComposeAction({
-    required this.label,
-    required this.onTap,
-    this.strong = false,
-  });
-
-  final String label;
-  final VoidCallback onTap;
-  final bool strong;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 4,
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.gaegu(
-            fontSize: 19,
-            height: 1,
-            fontWeight:
-                strong ? FontWeight.w500 : FontWeight.w400,
-            letterSpacing: 0.4,
-            color: strong ? kInk : kMutedInk,
-          ),
+            );
+          },
         ),
       ),
     );
