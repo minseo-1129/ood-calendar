@@ -7,14 +7,20 @@ import '../utils/date_labels.dart';
 
 class EntryStore {
   static const String _entriesKey = 'sodam.entries.v2';
+  static const String _legacyEntriesKey = 'sodam.entries.v1';
   static const String _draftKey = 'sodam.todayDraft.v2';
 
   Future<Map<String, DoodleEntry>> loadAll() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_entriesKey);
+    var raw = prefs.getString(_entriesKey);
 
     if (raw == null || raw.isEmpty) {
-      return <String, DoodleEntry>{};
+      final legacy = prefs.getString(_legacyEntriesKey);
+      if (legacy == null || legacy.isEmpty) {
+        return <String, DoodleEntry>{};
+      }
+      raw = legacy;
+      await prefs.setString(_entriesKey, legacy);
     }
 
     final decoded = jsonDecode(raw) as Map<String, dynamic>;
