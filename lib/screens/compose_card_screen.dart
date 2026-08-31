@@ -43,7 +43,9 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   final FocusNode _noteFocus = FocusNode();
 
   int get _remainingCharacters =>
-      (_noteLimit - _noteController.text.runes.length).clamp(0, _noteLimit);
+      (_noteLimit - _noteController.text.runes.length)
+          .clamp(0, _noteLimit)
+          .toInt();
 
   @override
   void initState() {
