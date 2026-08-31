@@ -301,12 +301,7 @@ class _DayCell extends StatelessWidget {
                         width: 38,
                         height: 50,
                       )
-                    : isToday
-                        ? const EmptyPaperThumbnail(
-                            width: 32,
-                            height: 43,
-                          )
-                        : const SizedBox.shrink(),
+                    : const SizedBox.shrink(),
               ),
             ),
           ],

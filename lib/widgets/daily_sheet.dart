@@ -101,16 +101,23 @@ class LockedEmptySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FractionallySizedBox(
-        widthFactor: 0.72,
-        heightFactor: 0.72,
-        child: Image.asset(
-          'assets/images/sealed_paper.png',
-          fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const DailySheet(
+          strokes: <DoodleStroke>[],
         ),
-      ),
+        Center(
+          child: Opacity(
+            opacity: 0.52,
+            child: Image.asset(
+              'assets/images/tape.png',
+              width: 72,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

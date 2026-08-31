@@ -79,11 +79,13 @@ Show the recorded Daily Sheet with subtle **masking-tape PNG overlays** at the u
 Asset: `assets/images/tape.png`
 
 ### Past, empty, read-only
-Show a **sealed paper PNG** rather than an editable-looking blank sheet. This communicates that the day passed without turning the blank day into an error state.
+Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add one quiet horizontal masking-tape mark across the middle to communicate that the day is closed.
 
-Asset: `assets/images/sealed_paper.png`
+Do not shrink the paper, add string, add a wax seal, or introduce a heavier object silhouette. The closed state must remain visually lighter than a saved doodle.
 
-The sealed state should not contain warning copy or failure language.
+Asset: `assets/images/tape.png`
+
+The closed state should not contain warning copy or failure language.
 
 ## 6. Prompt grammar
 
@@ -134,13 +136,16 @@ Do not add decorative action icons unless a future test shows a clear comprehens
 
 ## 9. Calendar states
 
-- Keep date numbers visible alongside saved doodle thumbnails for now.
-- Today should not be represented by a literal `+` because that mark may also be part of a doodle.
-- Empty today may use the small open-paper affordance.
-- Saved day uses its doodle thumbnail.
-- Past blank days remain quiet in Calendar; the sealed state is revealed when that Card is opened.
+Calendar is an accumulation surface for the doodles themselves. Material-state decoration belongs to Card view, not Calendar.
 
-This calendar decision is intentionally provisional and can be revisited after visual testing.
+- Keep date numbers visible.
+- In the visual area under a date, **saved days show only the doodle thumbnail**.
+- Do not show tape, paper, seals, string, or closed-state assets in Calendar.
+- Empty today and past blank days leave the doodle area empty.
+- Today is indicated only through the date treatment (subtle weight / background), never a literal `+`.
+- Opening a date reveals its paper state in Card view.
+
+This keeps the month composition subordinate to the drawings rather than to decorative paper assets.
 
 ## 10. Save feedback
 
@@ -158,6 +163,6 @@ Paper assets should feel physical but not photorealistic:
 - low-contrast shadows
 - subtle fibre
 - masking tape for “saved”
-- string / seal for “past empty and closed”
+- one quiet center tape mark for “past empty and closed”
 
 Avoid scrapbook decoration for its own sake. Material cues must communicate state.
