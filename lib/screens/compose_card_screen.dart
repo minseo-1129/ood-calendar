@@ -35,16 +35,25 @@ class ComposeCardScreen extends StatefulWidget {
 }
 
 class _ComposeCardScreenState extends State<ComposeCardScreen> {
+  static const int _noteLimit = 60;
+
   late List<DoodleStroke> _strokes;
   late final TextEditingController _noteController;
   final ScrollController _scrollController = ScrollController();
   final FocusNode _noteFocus = FocusNode();
 
+  int get _remainingCharacters =>
+      (_noteLimit - _noteController.text.runes.length).clamp(0, _noteLimit);
+
   @override
   void initState() {
     super.initState();
     _strokes = List<DoodleStroke>.of(widget.strokes);
-    _noteController = TextEditingController(\n      text: String.fromCharCodes(widget.initialNote.runes.take(60)),\n    );
+    _noteController = TextEditingController(
+      text: String.fromCharCodes(
+        widget.initialNote.runes.take(_noteLimit),
+      ),
+    );
 
     _noteFocus.addListener(() {
       if (mounted) {
@@ -74,6 +83,10 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   }
 
   void _noteChanged(String value) {
+    if (mounted) {
+      setState(() {});
+    }
+
     unawaited(
       widget.store.saveDraft(
         date: widget.date,
@@ -101,7 +114,9 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
 
     setState(() {
       _strokes = List<DoodleStroke>.of(revised.strokes);
-      _noteController.text = revised.note;
+      _noteController.text = String.fromCharCodes(
+        revised.note.runes.take(_noteLimit),
+      );
     });
   }
 
@@ -244,7 +259,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                                   opacity: _noteFocus.hasFocus ? 1 : 0,
                                   duration: const Duration(milliseconds: 120),
                                   child: Text(
-                                    '${_remainingCharacters}자 남음',
+                                    '$_remainingCharacters자 남음',
                                     style: GoogleFonts.gaegu(
                                       fontSize: 12,
                                       height: 1,
