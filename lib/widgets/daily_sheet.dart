@@ -103,6 +103,54 @@ class EmptyPaperThumbnail extends StatelessWidget {
   }
 }
 
+class TapedEmptySheet extends StatelessWidget {
+  const TapedEmptySheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        const DailySheet(
+          strokes: <DoodleStroke>[],
+        ),
+        Positioned(
+          top: 7,
+          left: 16,
+          child: Transform.rotate(
+            angle: -0.16,
+            child: const _TapeStrip(),
+          ),
+        ),
+        Positioned(
+          top: 7,
+          right: 16,
+          child: Transform.rotate(
+            angle: 0.16,
+            child: const _TapeStrip(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TapeStrip extends StatelessWidget {
+  const _TapeStrip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 46,
+      height: 13,
+      decoration: BoxDecoration(
+        color: const Color(0xFFD8CBAA).withAlpha(78),
+        borderRadius: BorderRadius.circular(1.5),
+      ),
+    );
+  }
+}
+
 class EmptyDayMark extends StatelessWidget {
   const EmptyDayMark({super.key});
 

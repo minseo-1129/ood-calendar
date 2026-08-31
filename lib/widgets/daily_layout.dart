@@ -15,7 +15,7 @@ class DailyLayoutMetrics {
   static const double promptToPaper = 26;
   static const double paperMaxWidth = 288;
   static const double paperToNote = 26;
-  static const double noteSlotHeight = 58;
+  static const double noteSlotHeight = 84;
   static const double noteToActions = 8;
   static const double actionHeight = 44;
 

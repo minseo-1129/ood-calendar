@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
@@ -183,19 +184,25 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                height: 38,
+                                height: 62,
                                 child: TextField(
                                   controller: _noteController,
                                   focusNode: _noteFocus,
-                                  maxLines: 1,
+                                  minLines: 1,
+                                  maxLines: 3,
                                   maxLength: 60,
+                                  maxLengthEnforcement:
+                                      MaxLengthEnforcement.enforced,
+                                  inputFormatters: const <TextInputFormatter>[
+                                    LengthLimitingTextInputFormatter(60),
+                                  ],
                                   textAlign: TextAlign.center,
                                   onChanged: _noteChanged,
                                   scrollPadding:
                                       const EdgeInsets.only(bottom: 160),
                                   style: GoogleFonts.gaegu(
-                                    fontSize: 20,
-                                    height: 1.15,
+                                    fontSize: 18,
+                                    height: 1.2,
                                     color: kInk.withAlpha(215),
                                   ),
                                   decoration: InputDecoration(
@@ -204,8 +211,8 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                                         ? null
                                         : '한마디 덧붙이기',
                                     hintStyle: GoogleFonts.gaegu(
-                                      fontSize: 19,
-                                      height: 1.15,
+                                      fontSize: 18,
+                                      height: 1.2,
                                       color: kMutedInk.withAlpha(145),
                                     ),
                                     border: InputBorder.none,
@@ -213,16 +220,32 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                                     focusedBorder: InputBorder.none,
                                     isDense: true,
                                     contentPadding:
-                                        const EdgeInsets.symmetric(vertical: 7),
+                                        const EdgeInsets.fromLTRB(4, 6, 4, 4),
                                   ),
                                 ),
                               ),
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 120),
-                                height: 1,
+                                height: 0.8,
                                 color: _noteFocus.hasFocus
-                                    ? kAccent.withAlpha(175)
-                                    : kAccent.withAlpha(90),
+                                    ? kMutedInk.withAlpha(100)
+                                    : kMutedInk.withAlpha(52),
+                              ),
+                              const SizedBox(height: 4),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: AnimatedOpacity(
+                                  opacity: _noteFocus.hasFocus ? 1 : 0,
+                                  duration: const Duration(milliseconds: 120),
+                                  child: Text(
+                                    '60자 이내',
+                                    style: GoogleFonts.gaegu(
+                                      fontSize: 12,
+                                      height: 1,
+                                      color: kSoftInk,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

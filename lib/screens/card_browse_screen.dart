@@ -227,14 +227,12 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                         return Stack(
                           fit: StackFit.expand,
                           children: [
-                            DailySheet(
-                              strokes:
-                                  entry?.strokes ?? const <DoodleStroke>[],
-                              strokeWidth: 3.0,
-                            ),
                             if (entry == null)
-                              const Center(
-                                child: EmptyDayMark(),
+                              const TapedEmptySheet()
+                            else
+                              DailySheet(
+                                strokes: entry.strokes,
+                                strokeWidth: 3.0,
                               ),
                           ],
                         );
@@ -254,7 +252,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                             ? const SizedBox.shrink()
                             : Text(
                                 _currentEntry!.note,
-                                maxLines: 2,
+                                maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.gaegu(
