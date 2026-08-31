@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:sodam/content/prompt_provider.dart';
 import 'package:sodam/models/doodle_models.dart';
 import 'package:sodam/utils/date_labels.dart';
 
@@ -51,5 +52,14 @@ void main() {
     expect(dateKey(date), '20260831');
     expect(drawingDateLabel(date), 'August 31');
     expect(monthLabel(date), 'August 2026');
+  });
+
+  test('daily prompt is deterministic and comes from the local pool', () {
+    final date = DateTime(2026, 8, 31);
+    final first = promptForDate(date);
+    final second = promptForDate(date);
+
+    expect(first, second);
+    expect(dailyPromptPool, contains(first));
   });
 }

@@ -11,7 +11,7 @@ class DailyLayoutMetrics {
   static const double topPadding = 30;
   static const double headerHeight = 46;
   static const double headerToPrompt = 28;
-  static const double promptSlotHeight = 34;
+  static const double promptSlotHeight = 48;
   static const double promptToPaper = 18;
   static const double paperMaxWidth = 288;
   static const double paperToNote = 18;
