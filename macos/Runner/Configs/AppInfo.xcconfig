@@ -8,7 +8,7 @@
 PRODUCT_NAME = sodam
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.minseocho.sodam
+PRODUCT_BUNDLE_IDENTIFIER = com.sodam.app
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.minseocho. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Sodam. All rights reserved.
