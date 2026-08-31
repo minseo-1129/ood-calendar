@@ -260,8 +260,8 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.gaegu(
-                                  fontSize: 20,
-                                  height: 1.15,
+                                  fontSize: 18,
+                                  height: 1.22,
                                   color: kMutedInk,
                                 ),
                               ),
