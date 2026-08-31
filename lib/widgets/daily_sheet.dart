@@ -50,65 +50,192 @@ class DailySheet extends StatelessWidget {
 }
 
 class LockedEmptySheet extends StatelessWidget {
-  const LockedEmptySheet({super.key});
+  const LockedEmptySheet({
+    super.key,
+    required this.seed,
+  });
+
+  final String seed;
 
   @override
   Widget build(BuildContext context) {
+    final variant = _lockedTapeVariant(seed);
+    final accent = _lockedTapeAccent(seed);
+
     return Stack(
       fit: StackFit.expand,
       children: [
         const DailySheet(
           strokes: <DoodleStroke>[],
         ),
-        const Center(
-          child: FractionallySizedBox(
-            widthFactor: 0.92,
-            heightFactor: 0.055,
-            child: CustomPaint(
-              painter: _CenterTapePainter(),
-            ),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            final height = constraints.maxHeight;
+
+            switch (variant) {
+              case 0:
+                return Center(
+                  child: Transform.rotate(
+                    angle: accent ? -0.055 : 0.055,
+                    child: _TapePiece(
+                      width: width * 0.86,
+                      height: 17,
+                      opacity: 0.46,
+                    ),
+                  ),
+                );
+
+              case 1:
+                return Stack(
+                  children: [
+                    Positioned(
+                      left: width * 0.09,
+                      top: height * 0.22,
+                      child: Transform.rotate(
+                        angle: -0.12,
+                        child: _TapePiece(
+                          width: width * 0.36,
+                          height: 16,
+                          opacity: 0.40,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: width * 0.08,
+                      top: height * 0.51,
+                      child: Transform.rotate(
+                        angle: 0.08,
+                        child: _TapePiece(
+                          width: width * 0.29,
+                          height: 15,
+                          opacity: 0.36,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: width * 0.22,
+                      bottom: height * 0.16,
+                      child: Transform.rotate(
+                        angle: 0.035,
+                        child: _TapePiece(
+                          width: width * 0.30,
+                          height: 14,
+                          opacity: 0.32,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+
+              default:
+                final placeAtTop = accent;
+                return Stack(
+                  children: [
+                    Positioned(
+                      left: width * 0.14,
+                      right: width * 0.14,
+                      top: placeAtTop ? height * 0.17 : null,
+                      bottom: placeAtTop ? null : height * 0.18,
+                      child: Transform.rotate(
+                        angle: placeAtTop ? 0.075 : -0.075,
+                        child: _TapePiece(
+                          width: width * 0.72,
+                          height: 17,
+                          opacity: 0.42,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+            }
+          },
         ),
       ],
     );
   }
 }
 
-class _CenterTapePainter extends CustomPainter {
-  const _CenterTapePainter();
+int _lockedTapeVariant(String seed) {
+  var value = 0;
+  for (final codeUnit in seed.codeUnits) {
+    value = (value * 31 + codeUnit) & 0x7fffffff;
+  }
+  return value % 3;
+}
+
+bool _lockedTapeAccent(String seed) {
+  var value = 7;
+  for (final codeUnit in seed.codeUnits.reversed) {
+    value = (value * 17 + codeUnit) & 0x7fffffff;
+  }
+  return value.isEven;
+}
+
+class _TapePiece extends StatelessWidget {
+  const _TapePiece({
+    required this.width,
+    required this.height,
+    required this.opacity,
+  });
+
+  final double width;
+  final double height;
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: opacity,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: const CustomPaint(
+          painter: _TapePainter(),
+        ),
+      ),
+    );
+  }
+}
+
+class _TapePainter extends CustomPainter {
+  const _TapePainter();
 
   @override
   void paint(Canvas canvas, Size size) {
     final fill = Paint()
-      ..color = const Color(0xFFD8CBAA).withAlpha(92)
+      ..color = const Color(0xFFD8CBAA)
       ..style = PaintingStyle.fill;
 
     final edge = Paint()
-      ..color = const Color(0xFFBFAF8E).withAlpha(28)
-      ..strokeWidth = 0.7
+      ..color = const Color(0xFFBFAF8E).withAlpha(42)
+      ..strokeWidth = 0.65
       ..strokeCap = StrokeCap.round;
 
     final path = Path()
-      ..moveTo(1.5, 1.5)
-      ..lineTo(size.width - 2.0, 0.8)
-      ..lineTo(size.width - 0.8, size.height - 1.6)
-      ..lineTo(2.0, size.height - 0.8)
+      ..moveTo(1.4, 1.6)
+      ..lineTo(size.width - 2.1, 0.8)
+      ..lineTo(size.width - 0.8, size.height - 1.7)
+      ..lineTo(2.1, size.height - 0.9)
       ..close();
 
     canvas.drawPath(path, fill);
 
-    for (var i = 0; i < 7; i++) {
-      final y = 2.0 + (size.height - 4.0) * i / 6;
+    for (var i = 0; i < 6; i++) {
+      final y = 2.0 + (size.height - 4.0) * i / 5;
       canvas.drawLine(
         Offset(4.0, y),
-        Offset(size.width - 4.0, y + math.sin(i * 1.7) * 0.5),
+        Offset(
+          size.width - 4.0,
+          y + math.sin(i * 1.45 + size.width * 0.01) * 0.45,
+        ),
         edge,
       );
     }
   }
 
   @override
-  bool shouldRepaint(covariant _CenterTapePainter oldDelegate) => false;
+  bool shouldRepaint(covariant _TapePainter oldDelegate) => false;
 }
 
 class DoodleThumbnail extends StatelessWidget {

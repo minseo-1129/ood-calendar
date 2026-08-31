@@ -77,11 +77,18 @@ Show an **open blank Daily Sheet**. It is available to edit.
 Show the recorded Daily Sheet **plain**, with no tape or extra material decoration. Saved and editable blank sheets use the same paper treatment; the doodle and note carry the state.
 
 ### Past, empty, read-only
-Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add one quiet horizontal masking-tape strip **straight across the center of the sheet** to communicate that the day is closed and cannot be written on.
+Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add a quiet masking-tape composition to communicate that the day is closed and cannot be written on.
 
-The strip spans almost the full paper width and stays low-contrast. Do not shrink the paper, add corner tape, string, a wax seal, or another heavy object silhouette.
+Use exactly three deterministic variants:
+1. one long strip crossing the middle at a slight angle;
+2. several smaller strips placed sparsely across the sheet;
+3. one long strip placed toward the upper or lower area at a slight angle.
 
-Implementation: draw the center tape directly in Flutter; do not depend on a raster asset.
+Variation is selected from the date key, so a date always keeps the same appearance across app launches. It should feel varied, never random on every open.
+
+Tape stays low-contrast and secondary to the paper. Do not shrink the paper, add string, a wax seal, or another heavy object silhouette.
+
+Implementation: draw tape directly in Flutter; do not depend on raster assets.
 
 The closed state should not contain warning copy or failure language.
 
@@ -161,6 +168,6 @@ Material cues should feel physical but not photorealistic:
 - low-contrast shadows
 - subtle fibre
 - no tape on saved or editable blank sheets
-- one quiet full-width center tape strip only for “past empty and closed”
+- subtle date-deterministic tape variation only for “past empty and closed”
 
 Avoid scrapbook decoration for its own sake. Material cues must communicate state.

@@ -228,7 +228,9 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                             entry == null && date.isBefore(_today);
 
                         if (isLockedEmpty) {
-                          return const LockedEmptySheet();
+                          return LockedEmptySheet(
+                            seed: dateKey(date),
+                          );
                         }
 
                         if (entry == null) {
