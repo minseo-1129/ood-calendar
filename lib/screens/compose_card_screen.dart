@@ -193,7 +193,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                                   maxLength: 60,
                                   maxLengthEnforcement:
                                       MaxLengthEnforcement.enforced,
-                                  inputFormatters: const <TextInputFormatter>[
+                                  inputFormatters: <TextInputFormatter>[
                                     LengthLimitingTextInputFormatter(60),
                                   ],
                                   textAlign: TextAlign.center,
