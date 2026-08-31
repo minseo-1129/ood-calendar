@@ -224,17 +224,21 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                         final date = _startDate.add(Duration(days: index));
                         final entry = _entries[dateKey(date)];
 
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            if (entry == null)
-                              const TapedEmptySheet()
-                            else
-                              DailySheet(
-                                strokes: entry.strokes,
-                                strokeWidth: 3.0,
-                              ),
-                          ],
+                        final isLockedEmpty =
+                            entry == null && date.isBefore(_today);
+
+                        if (isLockedEmpty) {
+                          return const LockedEmptySheet();
+                        }
+
+                        if (entry == null) {
+                          return const DailySheet(
+                            strokes: <DoodleStroke>[],
+                          );
+                        }
+
+                        return SavedTapedSheet(
+                          strokes: entry.strokes,
                         );
                       },
                     ),

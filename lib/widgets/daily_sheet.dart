@@ -49,6 +49,72 @@ class DailySheet extends StatelessWidget {
   }
 }
 
+class SavedTapedSheet extends StatelessWidget {
+  const SavedTapedSheet({
+    super.key,
+    required this.strokes,
+  });
+
+  final List<DoodleStroke> strokes;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      fit: StackFit.expand,
+      children: [
+        DailySheet(
+          strokes: strokes,
+          strokeWidth: 3.0,
+        ),
+        Positioned(
+          top: 5,
+          left: -5,
+          child: Transform.rotate(
+            angle: -0.10,
+            child: Image.asset(
+              'assets/images/tape.png',
+              width: 58,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+        Positioned(
+          top: 5,
+          right: -5,
+          child: Transform.rotate(
+            angle: 0.10,
+            child: Image.asset(
+              'assets/images/tape.png',
+              width: 58,
+              filterQuality: FilterQuality.medium,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class LockedEmptySheet extends StatelessWidget {
+  const LockedEmptySheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: FractionallySizedBox(
+        widthFactor: 0.72,
+        heightFactor: 0.72,
+        child: Image.asset(
+          'assets/images/sealed_paper.png',
+          fit: BoxFit.contain,
+          filterQuality: FilterQuality.high,
+        ),
+      ),
+    );
+  }
+}
+
 class DoodleThumbnail extends StatelessWidget {
   const DoodleThumbnail({
     super.key,

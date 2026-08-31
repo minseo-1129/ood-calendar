@@ -44,7 +44,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   void initState() {
     super.initState();
     _strokes = List<DoodleStroke>.of(widget.strokes);
-    _noteController = TextEditingController(text: widget.initialNote);
+    _noteController = TextEditingController(\n      text: String.fromCharCodes(widget.initialNote.runes.take(60)),\n    );
 
     _noteFocus.addListener(() {
       if (mounted) {
@@ -181,64 +181,70 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                         child: SizedBox(
                           width: paperWidth,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                height: 62,
-                                child: TextField(
-                                  controller: _noteController,
-                                  focusNode: _noteFocus,
-                                  minLines: 1,
-                                  maxLines: 3,
-                                  maxLength: 60,
-                                  maxLengthEnforcement:
-                                      MaxLengthEnforcement.enforced,
-                                  inputFormatters: <TextInputFormatter>[
-                                    LengthLimitingTextInputFormatter(60),
-                                  ],
-                                  textAlign: TextAlign.center,
-                                  onChanged: _noteChanged,
-                                  scrollPadding:
-                                      const EdgeInsets.only(bottom: 160),
-                                  style: GoogleFonts.gaegu(
+                              TextField(
+                                controller: _noteController,
+                                focusNode: _noteFocus,
+                                minLines: 1,
+                                maxLines: 3,
+                                maxLength: _noteLimit,
+                                maxLengthEnforcement:
+                                    MaxLengthEnforcement.enforced,
+                                inputFormatters: <TextInputFormatter>[
+                                  LengthLimitingTextInputFormatter(_noteLimit),
+                                ],
+                                keyboardType: TextInputType.text,
+                                textInputAction: TextInputAction.done,
+                                textAlign: TextAlign.center,
+                                onSubmitted: (_) => _noteFocus.unfocus(),
+                                onChanged: _noteChanged,
+                                scrollPadding:
+                                    const EdgeInsets.only(bottom: 180),
+                                style: GoogleFonts.gaegu(
+                                  fontSize: 18,
+                                  height: 1.22,
+                                  color: kInk.withAlpha(215),
+                                ),
+                                decoration: InputDecoration(
+                                  counterText: '',
+                                  hintText: _noteFocus.hasFocus
+                                      ? null
+                                      : '한 줄 메모 남기기',
+                                  hintStyle: GoogleFonts.gaegu(
                                     fontSize: 18,
-                                    height: 1.2,
-                                    color: kInk.withAlpha(215),
+                                    height: 1.22,
+                                    color: kMutedInk.withAlpha(140),
                                   ),
-                                  decoration: InputDecoration(
-                                    counterText: '',
-                                    hintText: _noteFocus.hasFocus
-                                        ? null
-                                        : '한마디 덧붙이기',
-                                    hintStyle: GoogleFonts.gaegu(
-                                      fontSize: 18,
-                                      height: 1.2,
-                                      color: kMutedInk.withAlpha(145),
-                                    ),
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                    isDense: true,
-                                    contentPadding:
-                                        const EdgeInsets.fromLTRB(4, 6, 4, 4),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 0,
                                   ),
                                 ),
                               ),
+                              const SizedBox(height: 10),
                               AnimatedContainer(
                                 duration: const Duration(milliseconds: 120),
-                                height: 0.8,
+                                width: paperWidth,
+                                height: 0.7,
                                 color: _noteFocus.hasFocus
-                                    ? kMutedInk.withAlpha(100)
-                                    : kMutedInk.withAlpha(52),
+                                    ? kMutedInk.withAlpha(88)
+                                    : kMutedInk.withAlpha(44),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 6),
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: AnimatedOpacity(
                                   opacity: _noteFocus.hasFocus ? 1 : 0,
                                   duration: const Duration(milliseconds: 120),
                                   child: Text(
-                                    '60자 이내',
+                                    '${_remainingCharacters}자 남음',
                                     style: GoogleFonts.gaegu(
                                       fontSize: 12,
                                       height: 1,
