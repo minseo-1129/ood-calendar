@@ -49,53 +49,6 @@ class DailySheet extends StatelessWidget {
   }
 }
 
-class SavedTapedSheet extends StatelessWidget {
-  const SavedTapedSheet({
-    super.key,
-    required this.strokes,
-  });
-
-  final List<DoodleStroke> strokes;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      fit: StackFit.expand,
-      children: [
-        DailySheet(
-          strokes: strokes,
-          strokeWidth: 3.0,
-        ),
-        Positioned(
-          top: 5,
-          left: -5,
-          child: Transform.rotate(
-            angle: -0.10,
-            child: Image.asset(
-              'assets/images/tape.png',
-              width: 58,
-              filterQuality: FilterQuality.medium,
-            ),
-          ),
-        ),
-        Positioned(
-          top: 5,
-          right: -5,
-          child: Transform.rotate(
-            angle: 0.10,
-            child: Image.asset(
-              'assets/images/tape.png',
-              width: 58,
-              filterQuality: FilterQuality.medium,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class LockedEmptySheet extends StatelessWidget {
   const LockedEmptySheet({super.key});
 
@@ -108,12 +61,16 @@ class LockedEmptySheet extends StatelessWidget {
           strokes: <DoodleStroke>[],
         ),
         Center(
-          child: Opacity(
-            opacity: 0.52,
-            child: Image.asset(
-              'assets/images/tape.png',
-              width: 72,
-              filterQuality: FilterQuality.medium,
+          child: FractionallySizedBox(
+            widthFactor: 0.92,
+            heightFactor: 0.055,
+            child: Opacity(
+              opacity: 0.46,
+              child: Image.asset(
+                'assets/images/tape.png',
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.medium,
+              ),
             ),
           ),
         ),
@@ -171,54 +128,6 @@ class EmptyPaperThumbnail extends StatelessWidget {
           fillColor: Color(0xCCFFFDF8),
           dashed: true,
         ),
-      ),
-    );
-  }
-}
-
-class TapedEmptySheet extends StatelessWidget {
-  const TapedEmptySheet({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const DailySheet(
-          strokes: <DoodleStroke>[],
-        ),
-        Positioned(
-          top: 7,
-          left: 16,
-          child: Transform.rotate(
-            angle: -0.16,
-            child: const _TapeStrip(),
-          ),
-        ),
-        Positioned(
-          top: 7,
-          right: 16,
-          child: Transform.rotate(
-            angle: 0.16,
-            child: const _TapeStrip(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TapeStrip extends StatelessWidget {
-  const _TapeStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 46,
-      height: 13,
-      decoration: BoxDecoration(
-        color: const Color(0xFFD8CBAA).withAlpha(78),
-        borderRadius: BorderRadius.circular(1.5),
       ),
     );
   }

@@ -74,14 +74,12 @@ Do not move the Daily Sheet vertically just because a prompt, note, or action is
 Show an **open blank Daily Sheet**. It is available to edit.
 
 ### Saved entry
-Show the recorded Daily Sheet with subtle **masking-tape PNG overlays** at the upper corners. Tape means “kept / placed here,” not “locked.”
-
-Asset: `assets/images/tape.png`
+Show the recorded Daily Sheet **plain**, with no tape or extra material decoration. Saved and editable blank sheets use the same paper treatment; the doodle and note carry the state.
 
 ### Past, empty, read-only
-Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add one quiet horizontal masking-tape mark across the middle to communicate that the day is closed.
+Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add one quiet horizontal masking-tape strip **straight across the center of the sheet** to communicate that the day is closed and cannot be written on.
 
-Do not shrink the paper, add string, add a wax seal, or introduce a heavier object silhouette. The closed state must remain visually lighter than a saved doodle.
+The strip spans almost the full paper width and stays low-contrast. Do not shrink the paper, add corner tape, string, a wax seal, or another heavy object silhouette.
 
 Asset: `assets/images/tape.png`
 
@@ -162,7 +160,7 @@ Paper assets should feel physical but not photorealistic:
 - warm ivory / cream
 - low-contrast shadows
 - subtle fibre
-- masking tape for “saved”
-- one quiet center tape mark for “past empty and closed”
+- no tape on saved or editable blank sheets
+- one quiet full-width center tape strip only for “past empty and closed”
 
 Avoid scrapbook decoration for its own sake. Material cues must communicate state.

@@ -237,8 +237,9 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                           );
                         }
 
-                        return SavedTapedSheet(
+                        return DailySheet(
                           strokes: entry.strokes,
+                          strokeWidth: 3.0,
                         );
                       },
                     ),
