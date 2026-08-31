@@ -81,7 +81,7 @@ Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add one q
 
 The strip spans almost the full paper width and stays low-contrast. Do not shrink the paper, add corner tape, string, a wax seal, or another heavy object silhouette.
 
-Asset: `assets/images/tape.png`
+Implementation: draw the center tape directly in Flutter; do not depend on a raster asset.
 
 The closed state should not contain warning copy or failure language.
 
@@ -156,7 +156,7 @@ Current pattern:
 
 ## 11. Asset tone
 
-Paper assets should feel physical but not photorealistic:
+Material cues should feel physical but not photorealistic:
 - warm ivory / cream
 - low-contrast shadows
 - subtle fibre

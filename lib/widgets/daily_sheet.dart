@@ -60,23 +60,55 @@ class LockedEmptySheet extends StatelessWidget {
         const DailySheet(
           strokes: <DoodleStroke>[],
         ),
-        Center(
+        const Center(
           child: FractionallySizedBox(
             widthFactor: 0.92,
             heightFactor: 0.055,
-            child: Opacity(
-              opacity: 0.46,
-              child: Image.asset(
-                'assets/images/tape.png',
-                fit: BoxFit.fill,
-                filterQuality: FilterQuality.medium,
-              ),
+            child: CustomPaint(
+              painter: _CenterTapePainter(),
             ),
           ),
         ),
       ],
     );
   }
+}
+
+class _CenterTapePainter extends CustomPainter {
+  const _CenterTapePainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final fill = Paint()
+      ..color = const Color(0xFFD8CBAA).withAlpha(92)
+      ..style = PaintingStyle.fill;
+
+    final edge = Paint()
+      ..color = const Color(0xFFBFAF8E).withAlpha(28)
+      ..strokeWidth = 0.7
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path()
+      ..moveTo(1.5, 1.5)
+      ..lineTo(size.width - 2.0, 0.8)
+      ..lineTo(size.width - 0.8, size.height - 1.6)
+      ..lineTo(2.0, size.height - 0.8)
+      ..close();
+
+    canvas.drawPath(path, fill);
+
+    for (var i = 0; i < 7; i++) {
+      final y = 2.0 + (size.height - 4.0) * i / 6;
+      canvas.drawLine(
+        Offset(4.0, y),
+        Offset(size.width - 4.0, y + math.sin(i * 1.7) * 0.5),
+        edge,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CenterTapePainter oldDelegate) => false;
 }
 
 class DoodleThumbnail extends StatelessWidget {
