@@ -302,14 +302,9 @@ class _DayCell extends StatelessWidget {
                         height: 50,
                       )
                     : isToday
-                        ? Text(
-                            '+',
-                            style: GoogleFonts.gaegu(
-                              fontSize: 19,
-                              height: 1,
-                              fontWeight: FontWeight.w400,
-                              color: kAccent,
-                            ),
+                        ? const EmptyPaperThumbnail(
+                            width: 32,
+                            height: 43,
                           )
                         : const SizedBox.shrink(),
               ),

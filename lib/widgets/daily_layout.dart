@@ -12,10 +12,10 @@ class DailyLayoutMetrics {
   static const double headerHeight = 46;
   static const double headerToPrompt = 28;
   static const double promptSlotHeight = 48;
-  static const double promptToPaper = 18;
+  static const double promptToPaper = 26;
   static const double paperMaxWidth = 288;
-  static const double paperToNote = 18;
-  static const double noteSlotHeight = 52;
+  static const double paperToNote = 26;
+  static const double noteSlotHeight = 58;
   static const double noteToActions = 8;
   static const double actionHeight = 44;
 
@@ -122,6 +122,58 @@ class DailyHeader extends StatelessWidget {
     return SodamHeader(
       title: drawingDateLabel(date),
       onBack: onBack,
+    );
+  }
+}
+
+class DailyPromptBlock extends StatelessWidget {
+  const DailyPromptBlock({
+    super.key,
+    required this.text,
+    this.label,
+  });
+
+  final String text;
+  final String? label;
+
+  @override
+  Widget build(BuildContext context) {
+    if (text.isEmpty) {
+      return const SizedBox(
+        height: DailyLayoutMetrics.promptSlotHeight,
+      );
+    }
+
+    return SizedBox(
+      height: DailyLayoutMetrics.promptSlotHeight,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (label != null) ...[
+            Text(
+              label!,
+              style: GoogleFonts.gaegu(
+                fontSize: 12,
+                height: 1,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0.2,
+                color: kSoftInk,
+              ),
+            ),
+            const SizedBox(height: 5),
+          ],
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.gaegu(
+              fontSize: 19,
+              height: 1.05,
+              fontWeight: FontWeight.w400,
+              color: kInk.withAlpha(190),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
@@ -151,22 +148,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
               const SizedBox(
                 height: DailyLayoutMetrics.headerToPrompt,
               ),
-              SizedBox(
-                height: DailyLayoutMetrics.promptSlotHeight,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text(
-                    _prompt,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.gaegu(
-                      fontSize: 20,
-                      height: 1,
-                      fontWeight: FontWeight.w400,
-                      color: kInk.withAlpha(190),
-                    ),
-                  ),
-                ),
-              ),
+              DailyPromptBlock(text: _prompt),
               const SizedBox(
                 height: DailyLayoutMetrics.promptToPaper,
               ),

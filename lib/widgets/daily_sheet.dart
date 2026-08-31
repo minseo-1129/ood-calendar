@@ -77,6 +77,107 @@ class DoodleThumbnail extends StatelessWidget {
   }
 }
 
+class EmptyPaperThumbnail extends StatelessWidget {
+  const EmptyPaperThumbnail({
+    super.key,
+    this.width = 34,
+    this.height = 45,
+  });
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      height: height,
+      child: const CustomPaint(
+        painter: _EmptyPaperPainter(
+          borderColor: Color(0x99809B92),
+          fillColor: Color(0xCCFFFDF8),
+          dashed: true,
+        ),
+      ),
+    );
+  }
+}
+
+class EmptyDayMark extends StatelessWidget {
+  const EmptyDayMark({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 28,
+      height: 37,
+      child: CustomPaint(
+        painter: _EmptyPaperPainter(
+          borderColor: Color(0x66B9BCB7),
+          fillColor: Color(0x00FFFDF8),
+          dashed: false,
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyPaperPainter extends CustomPainter {
+  const _EmptyPaperPainter({
+    required this.borderColor,
+    required this.fillColor,
+    required this.dashed,
+  });
+
+  final Color borderColor;
+  final Color fillColor;
+  final bool dashed;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0.8, 0.8, size.width - 1.6, size.height - 1.6),
+      const Radius.circular(2),
+    );
+
+    if (fillColor.a > 0) {
+      canvas.drawRRect(
+        rect,
+        Paint()
+          ..color = fillColor
+          ..style = PaintingStyle.fill,
+      );
+    }
+
+    final path = Path()..addRRect(rect);
+    final paint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.15
+      ..strokeCap = StrokeCap.round;
+
+    if (!dashed) {
+      canvas.drawPath(path, paint);
+      return;
+    }
+
+    for (final metric in path.computeMetrics()) {
+      double distance = 0;
+      while (distance < metric.length) {
+        final end = math.min(distance + 3.2, metric.length);
+        canvas.drawPath(
+          metric.extractPath(distance, end),
+          paint,
+        );
+        distance += 6.0;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _EmptyPaperPainter oldDelegate) => false;
+}
+
 class DoodlePainter extends CustomPainter {
   DoodlePainter({
     required this.strokes,

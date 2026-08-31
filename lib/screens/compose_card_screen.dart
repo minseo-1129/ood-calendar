@@ -177,35 +177,54 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                     SizedBox(
                       height: DailyLayoutMetrics.noteSlotHeight,
                       child: Center(
-                        child: TextField(
-                          controller: _noteController,
-                          focusNode: _noteFocus,
-                          maxLines: 1,
-                          maxLength: 60,
-                          textAlign: TextAlign.center,
-                          onChanged: _noteChanged,
-                          scrollPadding: const EdgeInsets.only(bottom: 160),
-                          style: GoogleFonts.gaegu(
-                            fontSize: 20,
-                            height: 1.15,
-                            color: kInk.withAlpha(215),
-                          ),
-                          decoration: InputDecoration(
-                            counterText: '',
-                            hintText: _noteFocus.hasFocus
-                                ? null
-                                : '한마디 덧붙이기',
-                            hintStyle: GoogleFonts.gaegu(
-                              fontSize: 19,
-                              height: 1.15,
-                              color: kMutedInk.withAlpha(145),
-                            ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            isDense: true,
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 10),
+                        child: SizedBox(
+                          width: paperWidth,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                height: 38,
+                                child: TextField(
+                                  controller: _noteController,
+                                  focusNode: _noteFocus,
+                                  maxLines: 1,
+                                  maxLength: 60,
+                                  textAlign: TextAlign.center,
+                                  onChanged: _noteChanged,
+                                  scrollPadding:
+                                      const EdgeInsets.only(bottom: 160),
+                                  style: GoogleFonts.gaegu(
+                                    fontSize: 20,
+                                    height: 1.15,
+                                    color: kInk.withAlpha(215),
+                                  ),
+                                  decoration: InputDecoration(
+                                    counterText: '',
+                                    hintText: _noteFocus.hasFocus
+                                        ? null
+                                        : '한마디 덧붙이기',
+                                    hintStyle: GoogleFonts.gaegu(
+                                      fontSize: 19,
+                                      height: 1.15,
+                                      color: kMutedInk.withAlpha(145),
+                                    ),
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding:
+                                        const EdgeInsets.symmetric(vertical: 7),
+                                  ),
+                                ),
+                              ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 120),
+                                height: 1,
+                                color: _noteFocus.hasFocus
+                                    ? kAccent.withAlpha(175)
+                                    : kAccent.withAlpha(90),
+                              ),
+                            ],
                           ),
                         ),
                       ),

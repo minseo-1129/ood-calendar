@@ -204,121 +204,38 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   const SizedBox(
                     height: DailyLayoutMetrics.headerToPrompt,
                   ),
-                  SizedBox(
-                    height: DailyLayoutMetrics.promptSlotHeight,
-                    child: promptText.isEmpty
-                        ? const SizedBox.shrink()
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                '그날의 질문',
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 12,
-                                  height: 1,
-                                  fontWeight: FontWeight.w400,
-                                  letterSpacing: 0.2,
-                                  color: kSoftInk,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                promptText,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 17,
-                                  height: 1,
-                                  fontWeight: FontWeight.w400,
-                                  color: kMutedInk.withAlpha(178),
-                                ),
-                              ),
-                            ],
-                          ),
+                  DailyPromptBlock(
+                    text: promptText,
+                    label: promptText.isEmpty ? null : '그날의 질문',
                   ),
                   const SizedBox(
                     height: DailyLayoutMetrics.promptToPaper,
                   ),
                   SizedBox(
+                    width: paperWidth,
                     height: paperHeight,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final rawPeek =
-                            (constraints.maxWidth - paperWidth) / 2 - 6;
-                        final peekWidth =
-                            rawPeek.clamp(6.0, 18.0).toDouble();
-
-                        final previousDate = _index > 0
-                            ? _startDate.add(Duration(days: _index - 1))
-                            : null;
-                        final nextDate = _index < _pageCount - 1
-                            ? _startDate.add(Duration(days: _index + 1))
-                            : null;
-
-                        final previousEntry = previousDate == null
-                            ? null
-                            : _entries[dateKey(previousDate)];
-                        final nextEntry = nextDate == null
-                            ? null
-                            : _entries[dateKey(nextDate)];
+                    child: PageView.builder(
+                      controller: _controller,
+                      itemCount: _pageCount,
+                      onPageChanged: (index) {
+                        setState(() => _index = index);
+                      },
+                      itemBuilder: (context, index) {
+                        final date = _startDate.add(Duration(days: index));
+                        final entry = _entries[dateKey(date)];
 
                         return Stack(
-                          alignment: Alignment.center,
+                          fit: StackFit.expand,
                           children: [
-                            if (previousDate != null)
-                              Positioned(
-                                left: 0,
-                                top: 9,
-                                child: IgnorePointer(
-                                  child: _CardEdgePeek(
-                                    visibleWidth: peekWidth,
-                                    paperWidth: paperWidth,
-                                    paperHeight: paperHeight,
-                                    strokes: previousEntry?.strokes ??
-                                        const <DoodleStroke>[],
-                                    showLeftEdge: false,
-                                  ),
-                                ),
-                              ),
-                            if (nextDate != null)
-                              Positioned(
-                                right: 0,
-                                top: 9,
-                                child: IgnorePointer(
-                                  child: _CardEdgePeek(
-                                    visibleWidth: peekWidth,
-                                    paperWidth: paperWidth,
-                                    paperHeight: paperHeight,
-                                    strokes: nextEntry?.strokes ??
-                                        const <DoodleStroke>[],
-                                    showLeftEdge: true,
-                                  ),
-                                ),
-                              ),
-                            Center(
-                              child: SizedBox(
-                                width: paperWidth,
-                                height: paperHeight,
-                                child: PageView.builder(
-                                  controller: _controller,
-                                  itemCount: _pageCount,
-                                  onPageChanged: (index) {
-                                    setState(() => _index = index);
-                                  },
-                                  itemBuilder: (context, index) {
-                                    final date = _startDate.add(
-                                      Duration(days: index),
-                                    );
-                                    final entry = _entries[dateKey(date)];
-
-                                    return DailySheet(
-                                      strokes: entry?.strokes ??
-                                          const <DoodleStroke>[],
-                                      strokeWidth: 3.0,
-                                    );
-                                  },
-                                ),
-                              ),
+                            DailySheet(
+                              strokes:
+                                  entry?.strokes ?? const <DoodleStroke>[],
+                              strokeWidth: 3.0,
                             ),
+                            if (entry == null)
+                              const Center(
+                                child: EmptyDayMark(),
+                              ),
                           ],
                         );
                       },
@@ -330,18 +247,23 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   SizedBox(
                     height: DailyLayoutMetrics.noteSlotHeight,
                     child: Center(
-                      child: _currentEntry == null ||
-                              _currentEntry!.note.isEmpty
-                          ? const SizedBox.shrink()
-                          : Text(
-                              _currentEntry!.note,
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.gaegu(
-                                fontSize: 20,
-                                height: 1.1,
-                                color: kMutedInk,
+                      child: SizedBox(
+                        width: paperWidth,
+                        child: _currentEntry == null ||
+                                _currentEntry!.note.isEmpty
+                            ? const SizedBox.shrink()
+                            : Text(
+                                _currentEntry!.note,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.gaegu(
+                                  fontSize: 20,
+                                  height: 1.15,
+                                  color: kMutedInk,
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -407,48 +329,6 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CardEdgePeek extends StatelessWidget {
-  const _CardEdgePeek({
-    required this.visibleWidth,
-    required this.paperWidth,
-    required this.paperHeight,
-    required this.strokes,
-    required this.showLeftEdge,
-  });
-
-  final double visibleWidth;
-  final double paperWidth;
-  final double paperHeight;
-  final List<DoodleStroke> strokes;
-  final bool showLeftEdge;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.55,
-      child: SizedBox(
-        width: visibleWidth,
-        height: paperHeight - 18,
-        child: ClipRect(
-          child: OverflowBox(
-            alignment: showLeftEdge
-                ? Alignment.centerLeft
-                : Alignment.centerRight,
-            minWidth: paperWidth,
-            maxWidth: paperWidth,
-            minHeight: paperHeight,
-            maxHeight: paperHeight,
-            child: DailySheet(
-              strokes: strokes,
-              strokeWidth: 3.0,
-            ),
-          ),
-        ),
       ),
     );
   }
