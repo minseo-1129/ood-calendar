@@ -202,30 +202,35 @@ class DoodlePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = kInk
-      ..style = PaintingStyle.fill
-      ..isAntiAlias = true;
-
-    for (final stroke in strokes) {
-      _paintStroke(canvas, size, paint, stroke.points);
+    for (var i = 0; i < strokes.length; i++) {
+      _paintStroke(
+        canvas,
+        size,
+        strokes[i].points,
+        seed: 17.0 + i * 97.0,
+      );
     }
 
     if (currentStroke.isNotEmpty) {
-      _paintStroke(canvas, size, paint, currentStroke);
+      _paintStroke(
+        canvas,
+        size,
+        currentStroke,
+        seed: 997.0,
+      );
     }
   }
 
   void _paintStroke(
     Canvas canvas,
     Size size,
-    Paint paint,
-    List<Offset> normalized,
-  ) {
+    List<Offset> normalized, {
+    required double seed,
+  }) {
     if (normalized.isEmpty) return;
 
     final rect = _fitThreeByFour(size);
-    final points = normalized
+    final raw = normalized
         .map(
           (point) => Offset(
             rect.left + point.dx * rect.width,
@@ -234,15 +239,165 @@ class DoodlePainter extends CustomPainter {
         )
         .toList(growable: false);
 
-    if (points.length == 1) {
-      canvas.drawCircle(points.first, strokeWidth * 0.45, paint);
+    if (raw.length == 1) {
+      _paintDryDot(canvas, raw.first, seed);
       return;
     }
 
-    canvas.drawPath(
-      _roughBrushPath(points, strokeWidth * 0.52),
-      paint,
+    final dense = _densify(
+      raw,
+      math.max(1.8, strokeWidth * 0.72),
     );
+    final points = _smoothStrokePoints(dense);
+    if (points.length < 2) return;
+
+    final basePaint = Paint()
+      ..color = kInk.withAlpha(118)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth * 0.76
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..isAntiAlias = true;
+
+    canvas.drawPath(
+      _pathThrough(points),
+      basePaint,
+    );
+
+    // Several translucent fibres keep the stroke vector/path based while
+    // breaking the clean digital edge into a dry pencil/crayon texture.
+    for (var pass = 0; pass < 7; pass++) {
+      final jittered = <Offset>[];
+
+      for (var i = 0; i < points.length; i++) {
+        final a = points[math.max(0, i - 1)];
+        final b = points[math.min(points.length - 1, i + 1)];
+        var tangent = b - a;
+        final length = tangent.distance == 0 ? 1.0 : tangent.distance;
+        tangent = Offset(
+          tangent.dx / length,
+          tangent.dy / length,
+        );
+        final normal = Offset(-tangent.dy, tangent.dx);
+
+        final n = _noise(seed + pass * 31.7 + i * 0.83);
+        final slowWave = math.sin(i * 0.21 + pass * 1.37) * 0.22;
+        final offset =
+            (n - 0.5 + slowWave) * strokeWidth * (0.62 + pass * 0.025);
+
+        jittered.add(points[i] + normal * offset);
+      }
+
+      final alpha =
+          (19 + _noise(seed + pass * 8.4) * 24).round().clamp(16, 45);
+      final fibreWidth = strokeWidth *
+          (0.24 + _noise(seed + pass * 4.9 + 3) * 0.24);
+
+      canvas.drawPath(
+        _pathThrough(jittered),
+        Paint()
+          ..color = kInk.withAlpha(alpha)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = fibreWidth
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..isAntiAlias = true,
+      );
+    }
+
+    // Fine deterministic grain around the centre line. Since the seed is
+    // stable, saved doodles render identically every time and at every scale.
+    final grainPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    for (var i = 0; i < points.length; i++) {
+      final density = _noise(seed + i * 2.17 + 41);
+      if (density < 0.28) continue;
+
+      final a = points[math.max(0, i - 1)];
+      final b = points[math.min(points.length - 1, i + 1)];
+      var tangent = b - a;
+      final length = tangent.distance == 0 ? 1.0 : tangent.distance;
+      tangent = Offset(
+        tangent.dx / length,
+        tangent.dy / length,
+      );
+      final normal = Offset(-tangent.dy, tangent.dx);
+
+      final lateral =
+          (_noise(seed + i * 3.71 + 7) - 0.5) * strokeWidth * 1.5;
+      final along = (_noise(seed + i * 5.13 + 19) - 0.5) *
+          math.max(1.0, strokeWidth * 0.7);
+      final point = points[i] + normal * lateral + tangent * along;
+
+      final radius = strokeWidth *
+          (0.045 + _noise(seed + i * 7.91 + 5) * 0.105);
+      final alpha =
+          (34 + _noise(seed + i * 11.23 + 29) * 72).round().clamp(28, 108);
+
+      grainPaint.color = kInk.withAlpha(alpha);
+      canvas.drawCircle(point, radius, grainPaint);
+
+      if (_noise(seed + i * 13.7 + 73) > 0.72) {
+        final secondPoint =
+            point + normal * ((_noise(seed + i * 17.1) - 0.5) * strokeWidth);
+        grainPaint.color = kInk.withAlpha((alpha * 0.58).round());
+        canvas.drawCircle(
+          secondPoint,
+          radius * 0.72,
+          grainPaint,
+        );
+      }
+    }
+  }
+
+  void _paintDryDot(Canvas canvas, Offset point, double seed) {
+    final paint = Paint()
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    for (var i = 0; i < 18; i++) {
+      final angle = _noise(seed + i * 2.7) * math.pi * 2;
+      final distance =
+          _noise(seed + i * 5.9 + 3) * strokeWidth * 0.72;
+      final radius =
+          strokeWidth * (0.055 + _noise(seed + i * 7.3 + 9) * 0.12);
+
+      paint.color = kInk.withAlpha(
+        (35 + _noise(seed + i * 11.1 + 17) * 90).round(),
+      );
+
+      canvas.drawCircle(
+        point + Offset(math.cos(angle), math.sin(angle)) * distance,
+        radius,
+        paint,
+      );
+    }
+  }
+
+  List<Offset> _smoothStrokePoints(List<Offset> points) {
+    if (points.length < 3) return points;
+
+    final result = <Offset>[points.first];
+    for (var i = 1; i < points.length - 1; i++) {
+      result.add(
+        Offset(
+          (points[i - 1].dx + points[i].dx * 2 + points[i + 1].dx) / 4,
+          (points[i - 1].dy + points[i].dy * 2 + points[i + 1].dy) / 4,
+        ),
+      );
+    }
+    result.add(points.last);
+    return result;
+  }
+
+  Path _pathThrough(List<Offset> points) {
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
+    for (var i = 1; i < points.length; i++) {
+      path.lineTo(points[i].dx, points[i].dy);
+    }
+    return path;
   }
 
   Rect _fitThreeByFour(Size size) {
@@ -271,92 +426,6 @@ class DoodlePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant DoodlePainter oldDelegate) => true;
-}
-
-Path _roughBrushPath(List<Offset> raw, double halfWidth) {
-  final points = _densify(raw, 4.0);
-  if (points.length < 2) return Path();
-
-  final count = points.length;
-  final arcLength = List<double>.filled(count, 0);
-
-  for (var i = 1; i < count; i++) {
-    arcLength[i] = arcLength[i - 1] + (points[i] - points[i - 1]).distance;
-  }
-
-  final total = arcLength.last == 0 ? 1.0 : arcLength.last;
-  final taperLength = math.min(9.0, total * 0.4);
-
-  final smoothed = <Offset>[];
-  for (var i = 0; i < count; i++) {
-    if (i == 0 || i == count - 1) {
-      smoothed.add(points[i]);
-    } else {
-      smoothed.add(
-        Offset(
-          (points[i - 1].dx + 2 * points[i].dx + points[i + 1].dx) / 4,
-          (points[i - 1].dy + 2 * points[i].dy + points[i + 1].dy) / 4,
-        ),
-      );
-    }
-  }
-
-  final left = <Offset>[];
-  final right = <Offset>[];
-
-  for (var i = 0; i < count; i++) {
-    final a = smoothed[math.max(0, i - 1)];
-    final b = smoothed[math.min(count - 1, i + 1)];
-    var tangent = b - a;
-    final tangentLength = tangent.distance == 0 ? 1.0 : tangent.distance;
-    tangent = Offset(
-      tangent.dx / tangentLength,
-      tangent.dy / tangentLength,
-    );
-
-    final fromStart =
-        math.min(1.0, arcLength[i] / math.max(0.001, taperLength));
-    final fromEnd =
-        math.min(1.0, (total - arcLength[i]) / math.max(0.001, taperLength));
-    final taper = math.pow(fromStart, 0.55).toDouble() *
-        math.pow(fromEnd, 0.55).toDouble();
-
-    final speed = 1 / (1 + tangentLength * 0.09);
-    final wobble = 1 +
-        0.12 * math.sin(arcLength[i] * 0.22) +
-        0.06 * math.sin(arcLength[i] * 0.51 + 1.1);
-
-    var width = halfWidth *
-        (0.3 + 0.7 * taper) *
-        (0.82 + 0.36 * speed) *
-        wobble;
-
-    width *= 1.16 +
-        0.30 * (_noise(arcLength[i] * 0.7) - 0.5) +
-        0.16 * (_noise(arcLength[i] * 2.9 + 7) - 0.5);
-
-    final leftJitter =
-        (_noise(arcLength[i] * 4.1 + 13) - 0.5) * halfWidth * 0.62;
-    final rightJitter =
-        (_noise(arcLength[i] * 3.7 + 29) - 0.5) * halfWidth * 0.62;
-
-    final normal = Offset(-tangent.dy, tangent.dx);
-    left.add(smoothed[i] + normal * (width + leftJitter));
-    right.add(smoothed[i] - normal * (width + rightJitter));
-  }
-
-  final path = Path()..moveTo(left.first.dx, left.first.dy);
-
-  for (var i = 1; i < left.length; i++) {
-    path.lineTo(left[i].dx, left[i].dy);
-  }
-
-  for (final point in right.reversed) {
-    path.lineTo(point.dx, point.dy);
-  }
-
-  path.close();
-  return path;
 }
 
 List<Offset> _densify(List<Offset> points, double step) {

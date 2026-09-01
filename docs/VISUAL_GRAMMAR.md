@@ -161,3 +161,15 @@ Material cues should feel physical but not photorealistic:
 - no tape or seal treatment on blank days for now
 
 Avoid scrapbook decoration for its own sake. Material cues must communicate state.
+
+
+## 12. Brush experiment — dry crayon / graphite
+
+Current test implementation keeps stroke data as normalized vector-like points and changes only rendering.
+
+- Stroke storage remains unchanged; old entries render with the new brush automatically.
+- Rendering uses a translucent centre stroke plus deterministic offset fibres and fine grain.
+- Texture is deterministic, so the same saved stroke looks stable across launches.
+- The target is dry pencil / graphite / restrained crayon, not waxy children's crayon.
+- Calendar thumbnails use the same brush renderer at reduced stroke width.
+- This is an experiment to evaluate on-device before locking the brush language.
