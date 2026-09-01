@@ -141,3 +141,14 @@ The launcher icon is composed from the calendar+doodle illustration, not from a 
 - Round icons use the same centered composition rather than a separate crop.
 - The Play Store 512px asset is composed independently with its own padding.
 - Do not resize/crop a screenshot or a finished rounded-square icon to make future launcher assets.
+
+
+## PNG-only launcher assets
+
+The V1 Android launcher icon now uses raster PNG resources only.
+
+- No adaptive-icon XML wrapper.
+- No vector/SVG launcher artwork.
+- The calendar+doodle illustration is optically centered on a plain warm-ivory background.
+- Launcher composition is intentionally smaller (about 54% of the square) to leave breathing room on Samsung and other launchers.
+- Play Store artwork uses its own 512px composition at about 58% scale.
