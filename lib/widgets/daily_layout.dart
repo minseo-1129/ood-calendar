@@ -316,19 +316,15 @@ Future<bool> showSodamConfirmDialog({
                         child: InkWell(
                           onTap: () =>
                               Navigator.of(dialogContext).pop(false),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 22),
-                              child: Text(
-                                cancelLabel,
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 18,
-                                  height: 1,
-                                  fontWeight: FontWeight.w400,
-                                  color: kMutedInk,
-                                ),
+                          child: Center(
+                            child: Text(
+                              cancelLabel,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.gaegu(
+                                fontSize: 18,
+                                height: 1,
+                                fontWeight: FontWeight.w400,
+                                color: kMutedInk,
                               ),
                             ),
                           ),
@@ -342,19 +338,15 @@ Future<bool> showSodamConfirmDialog({
                         child: InkWell(
                           onTap: () =>
                               Navigator.of(dialogContext).pop(true),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 22),
-                              child: Text(
-                                confirmLabel,
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 18,
-                                  height: 1,
-                                  fontWeight: FontWeight.w500,
-                                  color: kInk,
-                                ),
+                          child: Center(
+                            child: Text(
+                              confirmLabel,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.gaegu(
+                                fontSize: 18,
+                                height: 1,
+                                fontWeight: FontWeight.w500,
+                                color: kInk,
                               ),
                             ),
                           ),
