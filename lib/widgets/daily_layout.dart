@@ -248,3 +248,128 @@ class DailyTextAction extends StatelessWidget {
     );
   }
 }
+
+
+Future<bool> showSodamConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String message,
+  String cancelLabel = 'Cancel',
+  String confirmLabel = 'Okay',
+}) async {
+  final result = await showDialog<bool>(
+    context: context,
+    barrierColor: kInk.withAlpha(38),
+    builder: (dialogContext) {
+      return Dialog(
+        backgroundColor: kPaper,
+        surfaceTintColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 46),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 300),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.gaegu(
+                          fontSize: 22,
+                          height: 1.08,
+                          fontWeight: FontWeight.w500,
+                          color: kInk,
+                        ),
+                      ),
+                      const SizedBox(height: 9),
+                      Text(
+                        message,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.gaegu(
+                          fontSize: 16,
+                          height: 1.3,
+                          fontWeight: FontWeight.w400,
+                          color: kMutedInk,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 0.7,
+                  color: kSoftInk.withAlpha(82),
+                ),
+                SizedBox(
+                  height: 50,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.of(dialogContext).pop(false),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 22),
+                              child: Text(
+                                cancelLabel,
+                                style: GoogleFonts.gaegu(
+                                  fontSize: 18,
+                                  height: 1,
+                                  fontWeight: FontWeight.w400,
+                                  color: kMutedInk,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: 0.7,
+                        color: kSoftInk.withAlpha(70),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.of(dialogContext).pop(true),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 22),
+                              child: Text(
+                                confirmLabel,
+                                style: GoogleFonts.gaegu(
+                                  fontSize: 18,
+                                  height: 1,
+                                  fontWeight: FontWeight.w500,
+                                  color: kInk,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+
+  return result ?? false;
+}

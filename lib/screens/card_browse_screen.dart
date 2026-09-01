@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
@@ -135,67 +134,20 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
 
     if (saved == null || !mounted) return;
 
-    Navigator.of(context).pop((
-      message: '저장했어요',
-      date: date,
-    ));
+    Navigator.of(context).pop(date);
   }
 
   Future<void> _deleteCurrent() async {
     final entry = _currentEntry;
     if (entry == null) return;
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showSodamConfirmDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: kPaper,
-          surfaceTintColor: Colors.transparent,
-          title: Text(
-            '이 기록을 지울까요?',
-            style: GoogleFonts.gaegu(
-              fontSize: 22,
-              height: 1.1,
-              fontWeight: FontWeight.w500,
-              color: kInk,
-            ),
-          ),
-          content: Text(
-            '그날의 그림과 한 줄 메모가 함께 삭제돼요.',
-            style: GoogleFonts.gaegu(
-              fontSize: 17,
-              height: 1.25,
-              color: kMutedInk,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.gaegu(
-                  fontSize: 18,
-                  color: kMutedInk,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(
-                'Delete',
-                style: GoogleFonts.gaegu(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: kInk,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+      title: '이 기록을 지울까요?',
+      message: '그날의 그림과 한 줄 메모가 함께 삭제돼요.',
     );
 
-    if (confirmed != true || !mounted) return;
+    if (!confirmed || !mounted) return;
 
     await widget.store.deleteEntry(entry.dateKey);
     if (isSameDay(_currentDate, _today)) {
@@ -203,10 +155,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     if (!mounted) return;
-    Navigator.of(context).pop((
-      message: '삭제했어요',
-      date: _currentDate,
-    ));
+    Navigator.of(context).pop(_currentDate);
   }
 
   int get _pageCount => _today.difference(_startDate).inDays + 1;

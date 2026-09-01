@@ -142,14 +142,17 @@ Calendar is an accumulation surface for the doodles themselves. Material-state d
 
 This keeps the month composition subordinate to the drawings rather than to decorative paper assets.
 
-## 10. Save feedback
+## 10. Save / delete confirmation
 
-Saving is an in-app action, so confirmation should remain **in-app**, not an OS notification.
+Save and Delete use the same compact in-app confirmation dialog grammar.
 
-Current pattern:
-- Brief custom toast: `저장했어요` after save.
-- Brief custom toast: `삭제했어요` after delete, using the same position, styling, and ~1.55 s duration.
-- Destructive delete still asks for confirmation before the action; the post-action feedback is the same toast grammar as Save.
+- No toast after Save or Delete.
+- Save asks for confirmation before writing the entry.
+- Delete asks for confirmation before removing the entry.
+- Dialog content is centered, compact, and calm.
+- Dialog corner radius is 28.
+- Actions occupy opposite sides of one row: `Cancel` on the left and `Okay` on the right.
+- After confirmation and completion, return directly to Calendar.
 - No system notification permission.
 
 ## 11. Asset tone
@@ -181,10 +184,10 @@ Current test implementation keeps stroke data as normalized vector-like points a
 - Full-size doodle stroke test width is now 3.3; calendar thumbnail stroke is 1.38.
 - Pointer sampling is denser and interpolates between move events to better preserve finger trajectory.
 - Brush paths use quadratic interpolation through sampled points instead of straight line segments.
-- Save confirmation stays visible for about 1.55 seconds.
+- Save and Delete both use the shared compact confirmation dialog; toast feedback is removed.
 - Calendar date hierarchy is simplified: all past days share one style, today is emphasized mainly through weight, and future dates are muted.
 - Any saved entry exposes Delete. Today additionally exposes Edit; past entries remain read-only apart from deletion.
-- Delete requires confirmation. After deletion, the same toast grammar as Save confirms completion.
+- Delete requires the same confirmation-dialog grammar as Save.
 - Deleting today also clears today's draft; deleting a past entry does not touch the current draft.
 
 
@@ -200,10 +203,7 @@ A 6 logical-pixel safety margin is reserved for Android fractional-pixel roundin
 ## 15. Calendar completion flow and doodle thumbnails
 
 - Save and Delete both finish by returning to Calendar, reinforcing Calendar as Home.
-- Completion feedback is shown on Calendar in the center of the screen for about 1.55 seconds:
-  - `저장했어요`
-  - `삭제했어요`
-- Delete remains destructive and still requires confirmation before returning.
-- Calendar thumbnails are content-aware: small doodles are gently enlarged and centered using their actual stroke bounds, capped at about 2.15×.
+- There is no completion toast; confirmation happens before the action in the shared compact dialog.
+- Calendar thumbnails are content-aware: small doodles are gently enlarged and centered using their actual stroke bounds, capped at about 1.75×.
 - Large doodles keep their original paper-relative placement.
 - Calendar still shows doodles directly with no paper/card box around them.

@@ -408,7 +408,7 @@ class DoodlePainter extends CustomPainter {
       size.width * 0.84 / safeWidth,
       size.height * 0.84 / safeHeight,
     );
-    final scale = fitScale.clamp(1.0, 2.15).toDouble();
+    final scale = fitScale.clamp(1.0, 1.75).toDouble();
 
     // Large doodles keep their original paper-relative placement. Smaller
     // doodles are gently enlarged and centered so they do not collapse into

@@ -123,6 +123,15 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   }
 
   Future<void> _save() async {
+    _noteFocus.unfocus();
+
+    final confirmed = await showSodamConfirmDialog(
+      context: context,
+      title: '이 기록을 저장할까요?',
+      message: '오늘의 그림과 한 줄 메모를 이대로 남겨요.',
+    );
+    if (!confirmed || !mounted) return;
+
     final now = DateTime.now();
     final entry = DoodleEntry(
       dateKey: widget.date.year.toString().padLeft(4, '0') +
