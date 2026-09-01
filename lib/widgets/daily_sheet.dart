@@ -5,17 +5,13 @@ import 'package:flutter/material.dart';
 import '../app/theme.dart';
 import '../models/doodle_models.dart';
 
-class DailySheet extends StatelessWidget {
-  const DailySheet({
+class DailyPaperShadow extends StatelessWidget {
+  const DailyPaperShadow({
     super.key,
-    required this.strokes,
-    this.currentStroke = const <Offset>[],
-    this.strokeWidth = 3.3,
+    required this.child,
   });
 
-  final List<DoodleStroke> strokes;
-  final List<Offset> currentStroke;
-  final double strokeWidth;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -29,33 +25,62 @@ class DailySheet extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipPath(
-        clipper: const _DeckleClipper(),
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const CustomPaint(painter: _PaperTexturePainter()),
-            CustomPaint(
-              painter: DoodlePainter(
-                strokes: strokes,
-                currentStroke: currentStroke,
-                strokeWidth: strokeWidth,
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: child,
     );
   }
 }
 
-class LockedEmptySheet extends StatelessWidget {
-  const LockedEmptySheet({super.key});
+class DailySheet extends StatelessWidget {
+  const DailySheet({
+    super.key,
+    required this.strokes,
+    this.currentStroke = const <Offset>[],
+    this.strokeWidth = 3.3,
+    this.showShadow = true,
+  });
+
+  final List<DoodleStroke> strokes;
+  final List<Offset> currentStroke;
+  final double strokeWidth;
+  final bool showShadow;
 
   @override
   Widget build(BuildContext context) {
-    return const DailySheet(
-      strokes: <DoodleStroke>[],
+    final sheet = ClipPath(
+      clipper: const _DeckleClipper(),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const CustomPaint(painter: _PaperTexturePainter()),
+          CustomPaint(
+            painter: DoodlePainter(
+              strokes: strokes,
+              currentStroke: currentStroke,
+              strokeWidth: strokeWidth,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!showShadow) return sheet;
+    return DailyPaperShadow(child: sheet);
+  }
+}
+
+class LockedEmptySheet extends StatelessWidget {
+  const LockedEmptySheet({
+    super.key,
+    this.showShadow = true,
+  });
+
+  final bool showShadow;
+
+  @override
+  Widget build(BuildContext context) {
+    return DailySheet(
+      strokes: const <DoodleStroke>[],
+      showShadow: showShadow,
     );
   }
 }

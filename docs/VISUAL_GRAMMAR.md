@@ -207,3 +207,13 @@ A 6 logical-pixel safety margin is reserved for Android fractional-pixel roundin
 - Calendar thumbnails are content-aware: small doodles are gently enlarged and centered using their actual stroke bounds, capped at about 1.75×.
 - Large doodles keep their original paper-relative placement.
 - Calendar still shows doodles directly with no paper/card box around them.
+
+
+## 16. Daily Sheet depth consistency
+
+Daily Sheet shadow is one shared visual token across Card, Drawing, and Compose.
+
+- The shadow must not become stronger when entering Edit.
+- Card browsing draws the shadow outside the PageView so PageView clipping cannot trim it.
+- Individual pages inside Card browsing render without their own shadow to avoid double depth.
+- Drawing and Compose continue to use the same shared shadow wrapper around the sheet.

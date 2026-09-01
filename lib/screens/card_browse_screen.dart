@@ -210,34 +210,40 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   SizedBox(
                     width: paperWidth,
                     height: paperHeight,
-                    child: PageView.builder(
-                      controller: _controller,
-                      itemCount: _pageCount,
-                      onPageChanged: (index) {
-                        setState(() => _index = index);
-                      },
-                      itemBuilder: (context, index) {
+                    child: DailyPaperShadow(
+                      child: PageView.builder(
+                        controller: _controller,
+                        itemCount: _pageCount,
+                        onPageChanged: (index) {
+                          setState(() => _index = index);
+                        },
+                        itemBuilder: (context, index) {
                         final date = _startDate.add(Duration(days: index));
                         final entry = _entries[dateKey(date)];
 
                         final isLockedEmpty =
                             entry == null && date.isBefore(_today);
 
-                        if (isLockedEmpty) {
-                          return const LockedEmptySheet();
-                        }
+                          if (isLockedEmpty) {
+                            return const LockedEmptySheet(
+                              showShadow: false,
+                            );
+                          }
 
-                        if (entry == null) {
-                          return const DailySheet(
-                            strokes: <DoodleStroke>[],
+                          if (entry == null) {
+                            return const DailySheet(
+                              strokes: <DoodleStroke>[],
+                              showShadow: false,
+                            );
+                          }
+
+                          return DailySheet(
+                            strokes: entry.strokes,
+                            strokeWidth: 3.3,
+                            showShadow: false,
                           );
-                        }
-
-                        return DailySheet(
-                          strokes: entry.strokes,
-                          strokeWidth: 3.3,
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(
