@@ -186,3 +186,12 @@ Current test implementation keeps stroke data as normalized vector-like points a
 - Any saved entry exposes Delete. Today additionally exposes Edit; past entries remain read-only apart from deletion.
 - Delete requires confirmation. After deletion, the same toast grammar as Save confirms completion.
 - Deleting today also clears today's draft; deleting a past entry does not touch the current draft.
+
+
+## 14. Overflow safety
+
+Daily Sheet width is no longer based on screen width alone. It is capped by both:
+- horizontal room, and
+- the safe vertical height remaining after fixed header / prompt / note / action slots.
+
+A 6 logical-pixel safety margin is reserved for Android fractional-pixel rounding and font metric differences. On normal/tall devices the sheet remains at the 288 px max width; on shorter viewports it shrinks slightly while preserving the 3:4 ratio and shared vertical grammar.

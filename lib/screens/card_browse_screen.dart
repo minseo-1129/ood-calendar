@@ -245,7 +245,10 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     final editable = isSameDay(_currentDate, _today);
-    final paperWidth = DailyLayoutMetrics.paperWidth(context);
+    final paperWidth = DailyLayoutMetrics.paperWidth(
+      context,
+      bottomPadding: 12,
+    );
     final paperHeight = paperWidth * 4 / 3;
     final promptText = _currentEntry?.prompt.isNotEmpty == true
         ? _currentEntry!.prompt

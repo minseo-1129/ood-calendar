@@ -19,10 +19,38 @@ class DailyLayoutMetrics {
   static const double noteToActions = 8;
   static const double actionHeight = 44;
 
-  static double paperWidth(BuildContext context) {
+  static double paperWidth(
+    BuildContext context, {
+    double bottomPadding = 20,
+  }) {
+    final media = MediaQuery.of(context);
+    final widthLimit =
+        media.size.width - horizontalPadding * 2;
+
+    // Keep a small safety margin so fractional logical pixels on different
+    // Android devices never push the fixed daily-screen column into overflow.
+    const verticalSafety = 6.0;
+    final safeHeight =
+        media.size.height - media.padding.top - media.padding.bottom;
+    final fixedVertical = topPadding +
+        headerHeight +
+        headerToPrompt +
+        promptSlotHeight +
+        promptToPaper +
+        paperToNote +
+        noteSlotHeight +
+        noteToActions +
+        actionHeight +
+        bottomPadding +
+        verticalSafety;
+
+    final availablePaperHeight =
+        math.max(0.0, safeHeight - fixedVertical);
+    final widthFromHeight = availablePaperHeight * 3 / 4;
+
     return math.min(
       paperMaxWidth,
-      MediaQuery.sizeOf(context).width - horizontalPadding * 2,
+      math.min(widthLimit, widthFromHeight),
     );
   }
 }

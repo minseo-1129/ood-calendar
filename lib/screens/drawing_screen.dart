@@ -141,7 +141,10 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paperWidth = DailyLayoutMetrics.paperWidth(context);
+    final paperWidth = DailyLayoutMetrics.paperWidth(
+      context,
+      bottomPadding: 20,
+    );
     final paperHeight = paperWidth * 4 / 3;
     final paperSize = Size(paperWidth, paperHeight);
 
