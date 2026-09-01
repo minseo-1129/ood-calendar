@@ -82,6 +82,7 @@ class DoodleThumbnail extends StatelessWidget {
           strokes: strokes,
           currentStroke: const <Offset>[],
           strokeWidth: 1.38,
+          fitContent: true,
         ),
       ),
     );
@@ -189,25 +190,43 @@ class _EmptyPaperPainter extends CustomPainter {
   bool shouldRepaint(covariant _EmptyPaperPainter oldDelegate) => false;
 }
 
+class _ContentTransform {
+  const _ContentTransform({
+    required this.sourceCenter,
+    required this.targetCenter,
+    required this.scale,
+  });
+
+  final Offset sourceCenter;
+  final Offset targetCenter;
+  final double scale;
+}
+
 class DoodlePainter extends CustomPainter {
   DoodlePainter({
     required this.strokes,
     required this.currentStroke,
     required this.strokeWidth,
+    this.fitContent = false,
   });
 
   final List<DoodleStroke> strokes;
   final List<Offset> currentStroke;
   final double strokeWidth;
+  final bool fitContent;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final contentTransform =
+        fitContent ? _contentTransform(size) : null;
+
     for (var i = 0; i < strokes.length; i++) {
       _paintStroke(
         canvas,
         size,
         strokes[i].points,
         seed: 17.0 + i * 97.0,
+        contentTransform: contentTransform,
       );
     }
 
@@ -217,6 +236,7 @@ class DoodlePainter extends CustomPainter {
         size,
         currentStroke,
         seed: 997.0,
+        contentTransform: contentTransform,
       );
     }
   }
@@ -226,17 +246,22 @@ class DoodlePainter extends CustomPainter {
     Size size,
     List<Offset> normalized, {
     required double seed,
+    _ContentTransform? contentTransform,
   }) {
     if (normalized.isEmpty) return;
 
     final rect = _fitThreeByFour(size);
     final raw = normalized
-        .map(
-          (point) => Offset(
+        .map((point) {
+          final mapped = Offset(
             rect.left + point.dx * rect.width,
             rect.top + point.dy * rect.height,
-          ),
-        )
+          );
+          if (contentTransform == null) return mapped;
+          return contentTransform.targetCenter +
+              (mapped - contentTransform.sourceCenter) *
+                  contentTransform.scale;
+        })
         .toList(growable: false);
 
     if (raw.length == 1) {
@@ -350,6 +375,51 @@ class DoodlePainter extends CustomPainter {
         );
       }
     }
+  }
+
+  _ContentTransform? _contentTransform(Size size) {
+    final allPoints = <Offset>[
+      for (final stroke in strokes) ...stroke.points,
+      ...currentStroke,
+    ];
+    if (allPoints.isEmpty) return null;
+
+    final rect = _fitThreeByFour(size);
+    double minX = double.infinity;
+    double minY = double.infinity;
+    double maxX = double.negativeInfinity;
+    double maxY = double.negativeInfinity;
+
+    for (final point in allPoints) {
+      final mapped = Offset(
+        rect.left + point.dx * rect.width,
+        rect.top + point.dy * rect.height,
+      );
+      minX = math.min(minX, mapped.dx);
+      minY = math.min(minY, mapped.dy);
+      maxX = math.max(maxX, mapped.dx);
+      maxY = math.max(maxY, mapped.dy);
+    }
+
+    final bounds = Rect.fromLTRB(minX, minY, maxX, maxY);
+    final safeWidth = math.max(8.0, bounds.width);
+    final safeHeight = math.max(8.0, bounds.height);
+    final fitScale = math.min(
+      size.width * 0.84 / safeWidth,
+      size.height * 0.84 / safeHeight,
+    );
+    final scale = fitScale.clamp(1.0, 2.15).toDouble();
+
+    // Large doodles keep their original paper-relative placement. Smaller
+    // doodles are gently enlarged and centered so they do not collapse into
+    // tiny compressed marks in Calendar.
+    if (scale <= 1.01) return null;
+
+    return _ContentTransform(
+      sourceCenter: bounds.center,
+      targetCenter: Offset(size.width / 2, size.height / 2),
+      scale: scale,
+    );
   }
 
   void _paintDryDot(Canvas canvas, Offset point, double seed) {

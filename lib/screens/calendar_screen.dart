@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -28,6 +29,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _visibleMonth;
   Map<String, DoodleEntry> _entries = <String, DoodleEntry>{};
   bool _loading = true;
+  String? _toastMessage;
+  Timer? _toastTimer;
 
   @override
   void initState() {
@@ -35,6 +38,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final now = DateTime.now();
     _visibleMonth = DateTime(now.year, now.month);
     _loadMonth();
+  }
+
+  @override
+  void dispose() {
+    _toastTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadMonth() async {
@@ -63,7 +72,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final today = DateTime(now.year, now.month, now.day);
     if (date.isAfter(today)) return;
 
-    await Navigator.of(context).push<void>(
+    final result = await Navigator.of(context)
+        .push<({String message, DateTime date})>(
       quietRoute(
         CardBrowseScreen(
           store: widget.store,
@@ -72,7 +82,23 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
 
+    if (!mounted) return;
+    if (result != null) {
+      _visibleMonth = DateTime(result.date.year, result.date.month);
+    }
     await _loadMonth();
+    if (!mounted || result == null) return;
+    _showToast(result.message);
+  }
+
+  void _showToast(String message) {
+    _toastTimer?.cancel();
+    setState(() => _toastMessage = message);
+
+    _toastTimer = Timer(const Duration(milliseconds: 1550), () {
+      if (!mounted) return;
+      setState(() => _toastMessage = null);
+    });
   }
 
   @override
@@ -80,9 +106,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final today = DateTime.now();
 
     return Scaffold(
-      body: SafeArea(
-        child: GestureDetector(
-          behavior: HitTestBehavior.translucent,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
           onHorizontalDragEnd: (details) {
             final velocity = details.primaryVelocity ?? 0;
             if (velocity < -220) {
@@ -142,6 +170,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
         ),
+      ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Center(
+                child: AnimatedOpacity(
+                  opacity: _toastMessage == null ? 0 : 1,
+                  duration: const Duration(milliseconds: 140),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: kInk.withAlpha(228),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 11,
+                      ),
+                      child: Text(
+                        _toastMessage ?? '',
+                        style: GoogleFonts.gaegu(
+                          fontSize: 17,
+                          height: 1,
+                          fontWeight: FontWeight.w400,
+                          color: kBackground,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

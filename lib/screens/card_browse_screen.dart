@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -35,8 +33,6 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
   late DateTime _today;
   int _index = 0;
   bool _loading = true;
-  String? _toastMessage;
-  Timer? _toastTimer;
 
   DateTime get _currentDate => _startDate.add(Duration(days: _index));
   DoodleEntry? get _currentEntry => _entries[dateKey(_currentDate)];
@@ -50,7 +46,6 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
 
   @override
   void dispose() {
-    _toastTimer?.cancel();
     _controller?.dispose();
     super.dispose();
   }
@@ -140,14 +135,10 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
 
     if (saved == null || !mounted) return;
 
-    setState(() {
-      _entries = <String, DoodleEntry>{
-        ..._entries,
-        saved.dateKey: saved,
-      };
-    });
-
-    _showToast('저장했어요');
+    Navigator.of(context).pop((
+      message: '저장했어요',
+      date: date,
+    ));
   }
 
   Future<void> _deleteCurrent() async {
@@ -212,26 +203,10 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     if (!mounted) return;
-    setState(() {
-      _entries = Map<String, DoodleEntry>.of(_entries)
-        ..remove(entry.dateKey);
-    });
-    _showToast('삭제했어요');
-  }
-
-  void _showToast(String message) {
-    _toastTimer?.cancel();
-
-    setState(() {
-      _toastMessage = message;
-    });
-
-    _toastTimer = Timer(const Duration(milliseconds: 1550), () {
-      if (!mounted) return;
-      setState(() {
-        _toastMessage = null;
-      });
-    });
+    Navigator.of(context).pop((
+      message: '삭제했어요',
+      date: _currentDate,
+    ));
   }
 
   int get _pageCount => _today.difference(_startDate).inDays + 1;
@@ -372,40 +347,6 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   ),
                   const Spacer(),
                 ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 148,
-            child: IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: _toastMessage == null ? 0 : 1,
-                duration: const Duration(milliseconds: 140),
-                child: Center(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: kInk.withAlpha(228),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      child: Text(
-                        _toastMessage ?? '',
-                        style: GoogleFonts.gaegu(
-                          fontSize: 17,
-                          height: 1,
-                          fontWeight: FontWeight.w400,
-                          color: kBackground,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ),
             ),
           ),

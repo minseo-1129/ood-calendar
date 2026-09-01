@@ -195,3 +195,15 @@ Daily Sheet width is no longer based on screen width alone. It is capped by both
 - the safe vertical height remaining after fixed header / prompt / note / action slots.
 
 A 6 logical-pixel safety margin is reserved for Android fractional-pixel rounding and font metric differences. On normal/tall devices the sheet remains at the 288 px max width; on shorter viewports it shrinks slightly while preserving the 3:4 ratio and shared vertical grammar.
+
+
+## 15. Calendar completion flow and doodle thumbnails
+
+- Save and Delete both finish by returning to Calendar, reinforcing Calendar as Home.
+- Completion feedback is shown on Calendar in the center of the screen for about 1.55 seconds:
+  - `저장했어요`
+  - `삭제했어요`
+- Delete remains destructive and still requires confirmation before returning.
+- Calendar thumbnails are content-aware: small doodles are gently enlarged and centered using their actual stroke bounds, capped at about 2.15×.
+- Large doodles keep their original paper-relative placement.
+- Calendar still shows doodles directly with no paper/card box around them.
