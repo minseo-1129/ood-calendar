@@ -152,3 +152,16 @@ The V1 Android launcher icon now uses raster PNG resources only.
 - The calendar+doodle illustration is optically centered on a plain warm-ivory background.
 - Launcher composition is intentionally smaller (about 54% of the square) to leave breathing room on Samsung and other launchers.
 - Play Store artwork uses its own 512px composition at about 58% scale.
+
+
+## Final V1 icon and splash artwork
+
+The approved Sodam calendar + doodle mark is now the single visual source for Android release branding.
+
+- Launcher icons are PNG only at 48 / 72 / 96 / 144 / 192 px.
+- Round launcher icons use the same centered PNG composition.
+- The illustration sits on the same plain warm ivory background (#F8F5EE); there is no radiant or pre-baked rounded-square frame.
+- The artwork is deliberately smaller and optically centered, with generous breathing room.
+- The splash screen uses a dedicated centered PNG rendition of the same illustration on the same ivory background.
+- Android 12+ splash styling also points to that PNG; no SVG/vector/adaptive foreground artwork is used.
+- The Play Console 512 px artwork is a PNG rendition of the same illustration with purpose-specific padding.
