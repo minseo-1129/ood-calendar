@@ -181,9 +181,9 @@ Current test implementation keeps stroke data as normalized vector-like points a
 
 ## 13. Interaction tuning — stroke, dates, delete
 
-- Full-size doodle stroke test width is now 3.3; calendar thumbnail stroke is 1.38.
-- Pointer sampling is denser and interpolates between move events to better preserve finger trajectory.
-- Brush paths use quadratic interpolation through sampled points instead of straight line segments.
+- Full-size doodle stroke stays at 3.3; Calendar thumbnail stroke is reduced to 1.08 with lighter ink strength so month view reads more delicately.
+- Pointer sampling now reacts from ~0.55 px and interpolates at ~0.78 px steps, making live drawing feel less rigid.
+- Rendered strokes use two gentle smoothing passes before quadratic interpolation, preserving gesture character while softening stiff corners.
 - Save and Delete both use the shared compact confirmation dialog; toast feedback is removed.
 - Calendar date hierarchy is simplified: all past days share one style, today is emphasized mainly through weight, and future dates are muted.
 - Any saved entry exposes Delete. Today additionally exposes Edit; past entries remain read-only apart from deletion.

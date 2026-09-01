@@ -72,9 +72,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
     }
 
     final distance = (current - previous).distance;
-    if (distance < 0.85) return;
+    if (distance < 0.55) return;
 
-    final steps = math.max(1, (distance / 1.15).ceil());
+    final steps = math.max(1, (distance / 0.78).ceil());
 
     setState(() {
       final nextPoints = <Offset>[..._currentStroke];

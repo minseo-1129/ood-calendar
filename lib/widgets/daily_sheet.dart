@@ -106,8 +106,9 @@ class DoodleThumbnail extends StatelessWidget {
         painter: DoodlePainter(
           strokes: strokes,
           currentStroke: const <Offset>[],
-          strokeWidth: 1.38,
+          strokeWidth: 1.08,
           fitContent: true,
+          inkStrength: 0.78,
         ),
       ),
     );
@@ -233,12 +234,14 @@ class DoodlePainter extends CustomPainter {
     required this.currentStroke,
     required this.strokeWidth,
     this.fitContent = false,
+    this.inkStrength = 1.0,
   });
 
   final List<DoodleStroke> strokes;
   final List<Offset> currentStroke;
   final double strokeWidth;
   final bool fitContent;
+  final double inkStrength;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -296,13 +299,15 @@ class DoodlePainter extends CustomPainter {
 
     final dense = _densify(
       raw,
-      math.max(1.8, strokeWidth * 0.72),
+      math.max(1.2, strokeWidth * 0.52),
     );
-    final points = dense;
+    final points = _smoothStrokePoints(
+      _smoothStrokePoints(dense),
+    );
     if (points.length < 2) return;
 
     final basePaint = Paint()
-      ..color = kInk.withAlpha(132)
+      ..color = kInk.withAlpha(_scaledAlpha(132))
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth * 0.84
       ..strokeCap = StrokeCap.round
@@ -346,7 +351,7 @@ class DoodlePainter extends CustomPainter {
       canvas.drawPath(
         _pathThrough(jittered),
         Paint()
-          ..color = kInk.withAlpha(alpha)
+          ..color = kInk.withAlpha(_scaledAlpha(alpha))
           ..style = PaintingStyle.stroke
           ..strokeWidth = fibreWidth
           ..strokeCap = StrokeCap.round
@@ -386,13 +391,15 @@ class DoodlePainter extends CustomPainter {
       final alpha =
           (34 + _noise(seed + i * 11.23 + 29) * 72).round().clamp(28, 108);
 
-      grainPaint.color = kInk.withAlpha(alpha);
+      grainPaint.color = kInk.withAlpha(_scaledAlpha(alpha));
       canvas.drawCircle(point, radius, grainPaint);
 
       if (_noise(seed + i * 13.7 + 73) > 0.72) {
         final secondPoint =
             point + normal * ((_noise(seed + i * 17.1) - 0.5) * strokeWidth);
-        grainPaint.color = kInk.withAlpha((alpha * 0.58).round());
+        grainPaint.color = kInk.withAlpha(
+          _scaledAlpha((alpha * 0.58).round()),
+        );
         canvas.drawCircle(
           secondPoint,
           radius * 0.72,
@@ -460,7 +467,9 @@ class DoodlePainter extends CustomPainter {
           strokeWidth * (0.055 + _noise(seed + i * 7.3 + 9) * 0.12);
 
       paint.color = kInk.withAlpha(
-        (35 + _noise(seed + i * 11.1 + 17) * 90).round(),
+        _scaledAlpha(
+          (35 + _noise(seed + i * 11.1 + 17) * 90).round(),
+        ),
       );
 
       canvas.drawCircle(
@@ -469,6 +478,10 @@ class DoodlePainter extends CustomPainter {
         paint,
       );
     }
+  }
+
+  int _scaledAlpha(int alpha) {
+    return (alpha * inkStrength).round().clamp(0, 255);
   }
 
   List<Offset> _smoothStrokePoints(List<Offset> points) {
