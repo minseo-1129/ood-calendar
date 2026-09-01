@@ -129,3 +129,15 @@ Density-specific PNGs are committed directly:
 Both normal and round launcher requests point to the same `@mipmap/ic_launcher` artwork. The previous adaptive-icon override was removed so Android/Samsung masks the approved artwork itself instead of displaying the earlier redrawn calendar/weather version.
 
 For the Play Console listing, export the 512 × 512 store icon from this same approved artwork before upload.
+
+
+## Launcher icon composition rule
+
+The launcher icon is composed from the calendar+doodle illustration, not from a cropped pre-framed icon image.
+
+- Legacy launcher PNGs use a plain Sodam warm-ivory background and optically centered artwork.
+- Android 8+ uses a true adaptive icon: solid background layer + transparent calendar illustration foreground.
+- The adaptive foreground keeps the illustration inside the Android safe zone so Samsung/Pixel masks do not crop or shift it.
+- Round icons use the same centered composition rather than a separate crop.
+- The Play Store 512px asset is composed independently with its own padding.
+- Do not resize/crop a screenshot or a finished rounded-square icon to make future launcher assets.
