@@ -137,7 +137,7 @@ Calendar is an accumulation surface for the doodles themselves. Material-state d
 - In the visual area under a date, **saved days show only the doodle thumbnail**.
 - Do not show tape, paper, seals, string, or closed-state assets in Calendar.
 - Empty today and past blank days leave the doodle area empty.
-- Today is indicated only through the date treatment (subtle weight / background), never a literal `+`.
+- Today keeps both a subtle accent background and a stronger date weight; never use a literal `+`.
 - Opening a date reveals its paper state in Card view.
 
 This keeps the month composition subordinate to the drawings rather than to decorative paper assets.
@@ -147,9 +147,10 @@ This keeps the month composition subordinate to the drawings rather than to deco
 Saving is an in-app action, so confirmation should remain **in-app**, not an OS notification.
 
 Current pattern:
-- Brief custom toast: `저장했어요`
+- Brief custom toast: `저장했어요` after save.
+- Brief custom toast: `삭제했어요` after delete, using the same position, styling, and ~1.55 s duration.
+- Destructive delete still asks for confirmation before the action; the post-action feedback is the same toast grammar as Save.
 - No system notification permission.
-- No modal interruption.
 
 ## 11. Asset tone
 
@@ -182,4 +183,6 @@ Current test implementation keeps stroke data as normalized vector-like points a
 - Brush paths use quadratic interpolation through sampled points instead of straight line segments.
 - Save confirmation stays visible for about 1.55 seconds.
 - Calendar date hierarchy is simplified: all past days share one style, today is emphasized mainly through weight, and future dates are muted.
-- A saved entry for today exposes both Delete and Edit actions. Delete requires confirmation and removes the entry plus any current draft.
+- Any saved entry exposes Delete. Today additionally exposes Edit; past entries remain read-only apart from deletion.
+- Delete requires confirmation. After deletion, the same toast grammar as Save confirms completion.
+- Deleting today also clears today's draft; deleting a past entry does not touch the current draft.

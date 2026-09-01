@@ -35,7 +35,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
   late DateTime _today;
   int _index = 0;
   bool _loading = true;
-  bool _showSavedToast = false;
+  String? _toastMessage;
   Timer? _toastTimer;
 
   DateTime get _currentDate => _startDate.add(Duration(days: _index));
@@ -147,12 +147,12 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
       };
     });
 
-    _showSaveConfirmation();
+    _showToast('저장했어요');
   }
 
   Future<void> _deleteCurrent() async {
     final entry = _currentEntry;
-    if (entry == null || !isSameDay(_currentDate, _today)) return;
+    if (entry == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -170,7 +170,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
             ),
           ),
           content: Text(
-            '오늘의 그림과 한 줄 메모가 함께 삭제돼요.',
+            '그날의 그림과 한 줄 메모가 함께 삭제돼요.',
             style: GoogleFonts.gaegu(
               fontSize: 17,
               height: 1.25,
@@ -207,26 +207,29 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     if (confirmed != true || !mounted) return;
 
     await widget.store.deleteEntry(entry.dateKey);
-    await widget.store.clearDraft();
+    if (isSameDay(_currentDate, _today)) {
+      await widget.store.clearDraft();
+    }
 
     if (!mounted) return;
     setState(() {
       _entries = Map<String, DoodleEntry>.of(_entries)
         ..remove(entry.dateKey);
     });
+    _showToast('삭제했어요');
   }
 
-  void _showSaveConfirmation() {
+  void _showToast(String message) {
     _toastTimer?.cancel();
 
     setState(() {
-      _showSavedToast = true;
+      _toastMessage = message;
     });
 
     _toastTimer = Timer(const Duration(milliseconds: 1550), () {
       if (!mounted) return;
       setState(() {
-        _showSavedToast = false;
+        _toastMessage = null;
       });
     });
   }
@@ -342,7 +345,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     height: DailyLayoutMetrics.actionHeight,
                     child: Row(
                       children: [
-                        if (editable && _currentEntry != null)
+                        if (_currentEntry != null)
                           DailyTextAction(
                             label: 'Delete',
                             onTap: _deleteCurrent,
@@ -375,7 +378,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
             bottom: 148,
             child: IgnorePointer(
               child: AnimatedOpacity(
-                opacity: _showSavedToast ? 1 : 0,
+                opacity: _toastMessage == null ? 0 : 1,
                 duration: const Duration(milliseconds: 140),
                 child: Center(
                   child: DecoratedBox(
@@ -389,7 +392,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                         vertical: 10,
                       ),
                       child: Text(
-                        '저장했어요',
+                        _toastMessage ?? '',
                         style: GoogleFonts.gaegu(
                           fontSize: 17,
                           height: 1,

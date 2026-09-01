@@ -277,7 +277,9 @@ class _DayCell extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.transparent,
+                    color: isToday
+                        ? kAccent.withAlpha(24)
+                        : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
