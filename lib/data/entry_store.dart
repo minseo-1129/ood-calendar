@@ -56,6 +56,19 @@ class EntryStore {
     );
   }
 
+  Future<void> deleteEntry(String entryDateKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    final all = await loadAll();
+    all.remove(entryDateKey);
+
+    await prefs.setString(
+      _entriesKey,
+      jsonEncode(
+        all.map((key, value) => MapEntry(key, value.toJson())),
+      ),
+    );
+  }
+
   Future<DoodleDraft?> loadDraft(DateTime date) async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_draftKey);

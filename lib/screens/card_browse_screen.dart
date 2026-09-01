@@ -150,6 +150,72 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     _showSaveConfirmation();
   }
 
+  Future<void> _deleteCurrent() async {
+    final entry = _currentEntry;
+    if (entry == null || !isSameDay(_currentDate, _today)) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: kPaper,
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            '이 기록을 지울까요?',
+            style: GoogleFonts.gaegu(
+              fontSize: 22,
+              height: 1.1,
+              fontWeight: FontWeight.w500,
+              color: kInk,
+            ),
+          ),
+          content: Text(
+            '오늘의 그림과 한 줄 메모가 함께 삭제돼요.',
+            style: GoogleFonts.gaegu(
+              fontSize: 17,
+              height: 1.25,
+              color: kMutedInk,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.gaegu(
+                  fontSize: 18,
+                  color: kMutedInk,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(
+                'Delete',
+                style: GoogleFonts.gaegu(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: kInk,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    await widget.store.deleteEntry(entry.dateKey);
+    await widget.store.clearDraft();
+
+    if (!mounted) return;
+    setState(() {
+      _entries = Map<String, DoodleEntry>.of(_entries)
+        ..remove(entry.dateKey);
+    });
+  }
+
   void _showSaveConfirmation() {
     _toastTimer?.cancel();
 
@@ -157,7 +223,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
       _showSavedToast = true;
     });
 
-    _toastTimer = Timer(const Duration(milliseconds: 1800), () {
+    _toastTimer = Timer(const Duration(milliseconds: 1550), () {
       if (!mounted) return;
       setState(() {
         _showSavedToast = false;
@@ -239,7 +305,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
 
                         return DailySheet(
                           strokes: entry.strokes,
-                          strokeWidth: 3.0,
+                          strokeWidth: 3.3,
                         );
                       },
                     ),
@@ -276,7 +342,13 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     height: DailyLayoutMetrics.actionHeight,
                     child: Row(
                       children: [
-                        const SizedBox.shrink(),
+                        if (editable && _currentEntry != null)
+                          DailyTextAction(
+                            label: 'Delete',
+                            onTap: _deleteCurrent,
+                          )
+                        else
+                          const SizedBox.shrink(),
                         const Spacer(),
                         if (editable)
                           DailyTextAction(

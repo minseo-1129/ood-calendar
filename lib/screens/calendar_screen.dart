@@ -254,14 +254,11 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasEntry = entry != null;
     final dateColor = isFuture
-        ? kSoftInk.withAlpha(90)
+        ? kSoftInk.withAlpha(95)
         : isToday
-            ? kInk.withAlpha(205)
-            : hasEntry
-                ? kSoftInk.withAlpha(185)
-                : kMutedInk.withAlpha(190);
+            ? kInk.withAlpha(235)
+            : kMutedInk.withAlpha(195);
 
     return GestureDetector(
       onTap: isFuture ? null : onTap,
@@ -280,18 +277,16 @@ class _DayCell extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: isToday
-                        ? kAccent.withAlpha(20)
-                        : Colors.transparent,
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     date.day.toString(),
                     style: GoogleFonts.gaegu(
-                      fontSize: hasEntry ? 15 : 16,
+                      fontSize: 16,
                       height: 1,
                       fontWeight:
-                          isToday ? FontWeight.w500 : FontWeight.w400,
+                          isToday ? FontWeight.w600 : FontWeight.w400,
                       color: dateColor,
                     ),
                   ),

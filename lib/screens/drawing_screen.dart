@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../content/prompt_provider.dart';
@@ -57,18 +58,32 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   void _continueStroke(PointerMoveEvent event, Size size) {
     final previous = _lastLocalPoint;
+    final current = event.localPosition;
 
-    if (previous != null &&
-        (event.localPosition - previous).distance < 1.8) {
+    if (previous == null) {
+      setState(() {
+        _lastLocalPoint = current;
+        _currentStroke = <Offset>[
+          ..._currentStroke,
+          _normalize(current, size),
+        ];
+      });
       return;
     }
 
+    final distance = (current - previous).distance;
+    if (distance < 0.85) return;
+
+    final steps = math.max(1, (distance / 1.15).ceil());
+
     setState(() {
-      _lastLocalPoint = event.localPosition;
-      _currentStroke = <Offset>[
-        ..._currentStroke,
-        _normalize(event.localPosition, size),
-      ];
+      final nextPoints = <Offset>[..._currentStroke];
+      for (var i = 1; i <= steps; i++) {
+        final point = Offset.lerp(previous, current, i / steps)!;
+        nextPoints.add(_normalize(point, size));
+      }
+      _lastLocalPoint = current;
+      _currentStroke = nextPoints;
     });
   }
 
@@ -166,7 +181,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   child: DailySheet(
                     strokes: _strokes,
                     currentStroke: _currentStroke,
-                    strokeWidth: 3.0,
+                    strokeWidth: 3.3,
                   ),
                 ),
               ),

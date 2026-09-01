@@ -10,7 +10,7 @@ class DailySheet extends StatelessWidget {
     super.key,
     required this.strokes,
     this.currentStroke = const <Offset>[],
-    this.strokeWidth = 3.0,
+    this.strokeWidth = 3.3,
   });
 
   final List<DoodleStroke> strokes;
@@ -81,7 +81,7 @@ class DoodleThumbnail extends StatelessWidget {
         painter: DoodlePainter(
           strokes: strokes,
           currentStroke: const <Offset>[],
-          strokeWidth: 1.25,
+          strokeWidth: 1.38,
         ),
       ),
     );
@@ -248,13 +248,13 @@ class DoodlePainter extends CustomPainter {
       raw,
       math.max(1.8, strokeWidth * 0.72),
     );
-    final points = _smoothStrokePoints(dense);
+    final points = dense;
     if (points.length < 2) return;
 
     final basePaint = Paint()
-      ..color = kInk.withAlpha(118)
+      ..color = kInk.withAlpha(132)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth * 0.76
+      ..strokeWidth = strokeWidth * 0.84
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
@@ -289,9 +289,9 @@ class DoodlePainter extends CustomPainter {
       }
 
       final alpha =
-          (19 + _noise(seed + pass * 8.4) * 24).round().clamp(16, 45);
+          (22 + _noise(seed + pass * 8.4) * 26).round().clamp(18, 50);
       final fibreWidth = strokeWidth *
-          (0.24 + _noise(seed + pass * 4.9 + 3) * 0.24);
+          (0.27 + _noise(seed + pass * 4.9 + 3) * 0.25);
 
       canvas.drawPath(
         _pathThrough(jittered),
@@ -394,9 +394,24 @@ class DoodlePainter extends CustomPainter {
 
   Path _pathThrough(List<Offset> points) {
     final path = Path()..moveTo(points.first.dx, points.first.dy);
-    for (var i = 1; i < points.length; i++) {
-      path.lineTo(points[i].dx, points[i].dy);
+    if (points.length == 2) {
+      path.lineTo(points.last.dx, points.last.dy);
+      return path;
     }
+
+    for (var i = 1; i < points.length - 1; i++) {
+      final midpoint = Offset(
+        (points[i].dx + points[i + 1].dx) / 2,
+        (points[i].dy + points[i + 1].dy) / 2,
+      );
+      path.quadraticBezierTo(
+        points[i].dx,
+        points[i].dy,
+        midpoint.dx,
+        midpoint.dy,
+      );
+    }
+    path.lineTo(points.last.dx, points.last.dy);
     return path;
   }
 

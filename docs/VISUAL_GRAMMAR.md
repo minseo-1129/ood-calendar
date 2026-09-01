@@ -173,3 +173,13 @@ Current test implementation keeps stroke data as normalized vector-like points a
 - The target is dry pencil / graphite / restrained crayon, not waxy children's crayon.
 - Calendar thumbnails use the same brush renderer at reduced stroke width.
 - This is an experiment to evaluate on-device before locking the brush language.
+
+
+## 13. Interaction tuning — stroke, dates, delete
+
+- Full-size doodle stroke test width is now 3.3; calendar thumbnail stroke is 1.38.
+- Pointer sampling is denser and interpolates between move events to better preserve finger trajectory.
+- Brush paths use quadratic interpolation through sampled points instead of straight line segments.
+- Save confirmation stays visible for about 1.55 seconds.
+- Calendar date hierarchy is simplified: all past days share one style, today is emphasized mainly through weight, and future dates are muted.
+- A saved entry for today exposes both Delete and Edit actions. Delete requires confirmation and removes the entry plus any current draft.
