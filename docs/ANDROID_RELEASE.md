@@ -165,3 +165,16 @@ The approved Sodam calendar + doodle mark is now the single visual source for An
 - The splash screen uses a dedicated centered PNG rendition of the same illustration on the same ivory background.
 - Android 12+ splash styling also points to that PNG; no SVG/vector/adaptive foreground artwork is used.
 - The Play Console 512 px artwork is a PNG rendition of the same illustration with purpose-specific padding.
+
+
+## Final high-density splash pass
+
+The splash mark now uses density-specific PNG resources instead of one low-resolution nodpi bitmap:
+
+- mdpi: 288 × 288
+- hdpi: 432 × 432
+- xhdpi: 576 × 576
+- xxhdpi: 864 × 864
+- xxxhdpi: 1152 × 1152
+
+This keeps the same centered calendar+doodle mark and warm ivory field while avoiding blur on high-density Android screens. The artwork remains deliberately small enough to stay inside the Android splash safe area.
