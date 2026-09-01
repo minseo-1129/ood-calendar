@@ -114,15 +114,18 @@ version: 1.0.1+2
 
 Google Play requires every uploaded Android build to use a higher version code.
 
-
 ## Launcher icon
 
-The Android release uses the Sodam calendar + doodle launcher icon:
+The Android launcher uses the approved Sodam icon artwork: a soft cream calendar with a warm beige header and one loose doodle line.
 
-- legacy PNG launcher icons: `mipmap-mdpi` through `mipmap-xxxhdpi`
-- adaptive foreground PNGs: 108 / 162 / 216 / 324 / 432 px
-- adaptive icon background: Sodam warm ivory (`#F8F5EE`)
-- round launcher icon enabled in the Android manifest
-- Play Console 512 × 512 icon: `docs/release-assets/play-store-icon-512.png`
+Density-specific PNGs are committed directly:
 
-The icon intentionally uses the calendar + small weather doodle metaphor and contains no heart.
+- mdpi: 48 × 48
+- hdpi: 72 × 72
+- xhdpi: 96 × 96
+- xxhdpi: 144 × 144
+- xxxhdpi: 192 × 192
+
+Both normal and round launcher requests point to the same `@mipmap/ic_launcher` artwork. The previous adaptive-icon override was removed so Android/Samsung masks the approved artwork itself instead of displaying the earlier redrawn calendar/weather version.
+
+For the Play Console listing, export the 512 × 512 store icon from this same approved artwork before upload.
