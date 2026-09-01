@@ -63,7 +63,7 @@ Current shared metrics live in `DailyLayoutMetrics`.
 - Prompt → paper: 26
 - Paper ratio: 3:4
 - Paper → note: 26
-- Note slot height: 116
+- Note slot height: 104
 - Action height: 44
 
 Do not move the Daily Sheet vertically just because a prompt, note, or action is absent.
@@ -77,20 +77,9 @@ Show an **open blank Daily Sheet**. It is available to edit.
 Show the recorded Daily Sheet **plain**, with no tape or extra material decoration. Saved and editable blank sheets use the same paper treatment; the doodle and note carry the state.
 
 ### Past, empty, read-only
-Keep the **same full-size 3:4 Daily Sheet** as every other Card state. Add a quiet masking-tape composition to communicate that the day is closed and cannot be written on.
+Keep the **same full-size 3:4 blank Daily Sheet** as the editable empty state for now. The app still knows this date is locked and does not offer editing, but the paper itself should not carry tape, seals, warning marks, or a different illustration.
 
-Use exactly three deterministic variants:
-1. one long strip crossing the middle at a slight angle;
-2. several smaller strips placed sparsely across the sheet;
-3. one long strip placed toward the upper or lower area at a slight angle.
-
-Variation is selected from the date key, so a date always keeps the same appearance across app launches. It should feel varied, never random on every open.
-
-Tape stays low-contrast and secondary to the paper. Do not shrink the paper, add string, a wax seal, or another heavy object silhouette.
-
-Implementation: draw tape directly in Flutter; do not depend on raster assets.
-
-The closed state should not contain warning copy or failure language.
+This is intentionally a visual placeholder while the editorial empty-state language is explored. Blank days must remain calm and should not look like an error or a task left undone.
 
 ## 6. Prompt grammar
 
@@ -143,7 +132,8 @@ Do not add decorative action icons unless a future test shows a clear comprehens
 
 Calendar is an accumulation surface for the doodles themselves. Material-state decoration belongs to Card view, not Calendar.
 
-- Keep date numbers visible.
+- Keep date numbers visible, but treat them as metadata rather than as a peer to the doodle.
+- Saved-day date numbers are smaller and softer; doodles keep the strongest ink weight.
 - In the visual area under a date, **saved days show only the doodle thumbnail**.
 - Do not show tape, paper, seals, string, or closed-state assets in Calendar.
 - Empty today and past blank days leave the doodle area empty.
@@ -168,6 +158,6 @@ Material cues should feel physical but not photorealistic:
 - low-contrast shadows
 - subtle fibre
 - no tape on saved or editable blank sheets
-- subtle date-deterministic tape variation only for “past empty and closed”
+- no tape or seal treatment on blank days for now
 
 Avoid scrapbook decoration for its own sake. Material cues must communicate state.

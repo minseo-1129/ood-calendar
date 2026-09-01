@@ -105,34 +105,37 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   onBack: () => _changeMonth(-1),
                   onForward: () => _changeMonth(1),
                 ),
-                const SizedBox(height: 34),
-                const _WeekdayRow(),
-                const SizedBox(height: 20),
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final gridHeight = math.min(
-                          470.0,
-                          constraints.maxHeight,
-                        );
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final gridHeight = math.min(
+                        470.0,
+                        math.max(320.0, constraints.maxHeight - 52),
+                      );
 
-                        return AnimatedOpacity(
+                      return Center(
+                        child: AnimatedOpacity(
                           opacity: _loading ? 0.55 : 1,
                           duration: const Duration(milliseconds: 160),
-                          child: SizedBox(
-                            height: gridHeight,
-                            child: _MonthGrid(
-                              month: _visibleMonth,
-                              today: today,
-                              entries: _entries,
-                              onTapDate: _openDate,
-                            ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const _WeekdayRow(),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                height: gridHeight,
+                                child: _MonthGrid(
+                                  month: _visibleMonth,
+                                  today: today,
+                                  entries: _entries,
+                                  onTapDate: _openDate,
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -251,11 +254,14 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasEntry = entry != null;
     final dateColor = isFuture
-        ? kSoftInk.withAlpha(100)
+        ? kSoftInk.withAlpha(90)
         : isToday
-            ? kInk
-            : kInk.withAlpha(205);
+            ? kInk.withAlpha(205)
+            : hasEntry
+                ? kSoftInk.withAlpha(185)
+                : kMutedInk.withAlpha(190);
 
     return GestureDetector(
       onTap: isFuture ? null : onTap,
@@ -275,14 +281,14 @@ class _DayCell extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: isToday
-                        ? kAccent.withAlpha(28)
+                        ? kAccent.withAlpha(20)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     date.day.toString(),
                     style: GoogleFonts.gaegu(
-                      fontSize: 17,
+                      fontSize: hasEntry ? 15 : 16,
                       height: 1,
                       fontWeight:
                           isToday ? FontWeight.w500 : FontWeight.w400,

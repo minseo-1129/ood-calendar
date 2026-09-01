@@ -157,7 +157,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
       _showSavedToast = true;
     });
 
-    _toastTimer = Timer(const Duration(milliseconds: 1400), () {
+    _toastTimer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;
       setState(() {
         _showSavedToast = false;
@@ -193,7 +193,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                 DailyLayoutMetrics.horizontalPadding,
                 DailyLayoutMetrics.topPadding,
                 DailyLayoutMetrics.horizontalPadding,
-                20,
+                12,
               ),
               child: Column(
                 children: [
@@ -228,9 +228,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                             entry == null && date.isBefore(_today);
 
                         if (isLockedEmpty) {
-                          return LockedEmptySheet(
-                            seed: dateKey(date),
-                          );
+                          return const LockedEmptySheet();
                         }
 
                         if (entry == null) {
@@ -302,7 +300,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
           Positioned(
             left: 0,
             right: 0,
-            bottom: 92,
+            bottom: 148,
             child: IgnorePointer(
               child: AnimatedOpacity(
                 opacity: _showSavedToast ? 1 : 0,
@@ -315,13 +313,13 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 17,
-                        vertical: 8,
+                        horizontal: 20,
+                        vertical: 10,
                       ),
                       child: Text(
                         '저장했어요',
                         style: GoogleFonts.gaegu(
-                          fontSize: 16,
+                          fontSize: 17,
                           height: 1,
                           fontWeight: FontWeight.w400,
                           color: kBackground,
