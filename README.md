@@ -1,17 +1,27 @@
-# sodam
+# Sodam
 
-A new Flutter project.
+Sodam is a private daily doodle keepsake built with Flutter.
 
-## Getting Started
+The app is intentionally constrained: one daily sheet, one doodle, an optional one-line memo, and a quiet Calendar home.
 
-This project is a starting point for a Flutter application.
+## V1
 
-A few resources to get you started if this is your first Flutter project:
+Current app version:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```text
+1.0.0+1
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Android package:
+
+```text
+com.sodam.app
+```
+
+The stable V1 product snapshot is preserved in the `v1` branch. Android release preparation lives on `main` and the `release/v1.0.0` branch.
+
+For signed Android APK / AAB instructions, see:
+
+```text
+docs/ANDROID_RELEASE.md
+```
