@@ -25,3 +25,10 @@ For signed Android APK / AAB instructions, see:
 ```text
 docs/ANDROID_RELEASE.md
 ```
+
+
+For restarting the project in a fresh ChatGPT session, use:
+
+```text
+docs/PROJECT_HANDOFF.md
+```
