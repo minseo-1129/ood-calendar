@@ -1,9 +1,9 @@
 # Android V1 release
 
-Sodam V1 is configured for a signed Android release build with:
+Ood V1 is configured for a signed Android release build with:
 
-- application ID: `com.sodam.app`
-- version: `1.0.0+1`
+- application ID: `com.ood.app`
+- version: `1.0.0+2`
 - compile SDK: 36
 - target SDK: 36
 - Java / Kotlin target: 17
@@ -17,7 +17,7 @@ From Git Bash on Windows:
 
 ```bash
 keytool -genkeypair -v \
-  -keystore C:/Users/USER/sodam-upload-key.jks \
+  -keystore C:/Users/USER/ood-upload-key.jks \
   -keyalg RSA \
   -keysize 2048 \
   -validity 10000 \
@@ -31,7 +31,7 @@ If `keytool` is not found, use the JDK bundled with Android Studio or the JDK us
 ## 2. Create the local signing file
 
 ```bash
-cd /c/dev/sodam
+cd /c/dev/ood
 cp android/key.properties.example android/key.properties
 ```
 
@@ -41,7 +41,7 @@ Edit `android/key.properties`:
 storePassword=YOUR_STORE_PASSWORD
 keyPassword=YOUR_KEY_PASSWORD
 keyAlias=upload
-storeFile=C:/Users/USER/sodam-upload-key.jks
+storeFile=C:/Users/USER/ood-upload-key.jks
 ```
 
 Use forward slashes in the Windows path.
@@ -116,7 +116,7 @@ Google Play requires every uploaded Android build to use a higher version code.
 
 ## Launcher icon
 
-The Android launcher uses the approved Sodam icon artwork: a soft cream calendar with a warm beige header and one loose doodle line.
+The Android launcher uses the approved Ood icon artwork: a soft cream calendar with a warm beige header and one loose doodle line.
 
 Density-specific PNGs are committed directly:
 
@@ -135,7 +135,7 @@ For the Play Console listing, export the 512 × 512 store icon from this same ap
 
 The launcher icon is composed from the calendar+doodle illustration, not from a cropped pre-framed icon image.
 
-- Legacy launcher PNGs use a plain Sodam warm-ivory background and optically centered artwork.
+- Legacy launcher PNGs use a plain Ood warm-ivory background and optically centered artwork.
 - Android 8+ uses a true adaptive icon: solid background layer + transparent calendar illustration foreground.
 - The adaptive foreground keeps the illustration inside the Android safe zone so Samsung/Pixel masks do not crop or shift it.
 - Round icons use the same centered composition rather than a separate crop.
@@ -156,7 +156,7 @@ The V1 Android launcher icon now uses raster PNG resources only.
 
 ## Final V1 icon and splash artwork
 
-The approved Sodam calendar + doodle mark is now the single visual source for Android release branding.
+The approved Ood calendar + doodle mark is now the single visual source for Android release branding.
 
 - Launcher icons are PNG only at 48 / 72 / 96 / 144 / 192 px.
 - Round launcher icons use the same centered PNG composition.

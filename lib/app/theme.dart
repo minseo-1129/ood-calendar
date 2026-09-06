@@ -8,7 +8,7 @@ const Color kMutedInk = Color(0xFF7C8888);
 const Color kSoftInk = Color(0xFFB9BCB7);
 const Color kAccent = Color(0xFF809B92);
 
-ThemeData buildSodamTheme() {
+ThemeData buildOodTheme() {
   final base = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,

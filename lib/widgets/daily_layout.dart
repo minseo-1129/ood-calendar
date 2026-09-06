@@ -55,8 +55,8 @@ class DailyLayoutMetrics {
   }
 }
 
-class SodamHeader extends StatelessWidget {
-  const SodamHeader({
+class OodHeader extends StatelessWidget {
+  const OodHeader({
     super.key,
     required this.title,
     this.onBack,
@@ -147,7 +147,7 @@ class DailyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SodamHeader(
+    return OodHeader(
       title: drawingDateLabel(date),
       onBack: onBack,
     );
@@ -250,7 +250,7 @@ class DailyTextAction extends StatelessWidget {
 }
 
 
-Future<bool> showSodamConfirmDialog({
+Future<bool> showOodConfirmDialog({
   required BuildContext context,
   required String title,
   required String message,

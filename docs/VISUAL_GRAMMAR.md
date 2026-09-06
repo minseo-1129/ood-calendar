@@ -1,10 +1,10 @@
-# Sodam Visual Grammar
+# Ood Visual Grammar
 
 This document is the current visual and interaction grammar for the Flutter implementation. It should be treated as a design constraint, not a loose mood board.
 
 ## 1. Product posture
 
-Sodam is a private daily doodle keepsake. The UI should feel quiet, tactile, warm, and editorial rather than gamified or utility-heavy.
+Ood is a private daily doodle keepsake. The UI should feel quiet, tactile, warm, and editorial rather than gamified or utility-heavy.
 
 Core rules:
 

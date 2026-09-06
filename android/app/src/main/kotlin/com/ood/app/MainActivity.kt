@@ -1,4 +1,4 @@
-package com.sodam.app
+package com.ood.app
 
 import io.flutter.embedding.android.FlutterActivity
 

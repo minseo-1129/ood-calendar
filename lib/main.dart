@@ -6,18 +6,18 @@ import 'screens/calendar_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const SodamApp());
+  runApp(const OodApp());
 }
 
-class SodamApp extends StatelessWidget {
-  const SodamApp({super.key});
+class OodApp extends StatelessWidget {
+  const OodApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'sodam',
-      theme: buildSodamTheme(),
+      title: 'ood',
+      theme: buildOodTheme(),
       home: CalendarScreen(store: EntryStore()),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sodam/content/prompt_provider.dart';
-import 'package:sodam/models/doodle_models.dart';
-import 'package:sodam/utils/date_labels.dart';
+import 'package:ood/content/prompt_provider.dart';
+import 'package:ood/models/doodle_models.dart';
+import 'package:ood/utils/date_labels.dart';
 
 void main() {
   test('DoodleStroke round-trips normalized points', () {

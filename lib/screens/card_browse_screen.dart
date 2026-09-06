@@ -141,7 +141,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     final entry = _currentEntry;
     if (entry == null) return;
 
-    final confirmed = await showSodamConfirmDialog(
+    final confirmed = await showOodConfirmDialog(
       context: context,
       title: '이 기록을 지울까요?',
       message: '그날의 그림과 한 줄 메모가 함께 삭제돼요.',

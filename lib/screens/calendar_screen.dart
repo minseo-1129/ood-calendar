@@ -104,7 +104,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             child: Column(
               children: [
-                SodamHeader(
+                OodHeader(
                   title: monthLabel(_visibleMonth),
                   onBack: () => _changeMonth(-1),
                   onForward: () => _changeMonth(1),

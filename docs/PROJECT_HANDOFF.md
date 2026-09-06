@@ -1,13 +1,13 @@
-# Sodam Project Handoff
+# Ood Project Handoff
 
-Use this file when starting a fresh ChatGPT session for Sodam.
+Use this file when starting a fresh ChatGPT session for Ood.
 
 ## 1. First rule: GitHub is the source of truth
 
 Repository:
 
 ```text
-minseo-1129/sodam
+minseo-1129/ood
 ```
 
 Before changing anything:
@@ -23,7 +23,7 @@ The user may also make independent local/GitHub changes, so always re-check `mai
 
 ## 2. Product
 
-**Sodam** is a private daily doodle keepsake for adults.
+**Ood** is a private daily doodle keepsake for adults.
 
 Core idea:
 
@@ -63,7 +63,7 @@ Card browsing swipes horizontally day-by-day, including blank dates.
 
 ## 3. Visual direction
 
-Sodam should feel:
+Ood should feel:
 
 - warm
 - handmade
@@ -232,9 +232,9 @@ Draft fields:
 Storage keys:
 
 ```text
-sodam.entries.v2
-sodam.entries.v1          # legacy support
-sodam.todayDraft.v2
+ood.entries.v2
+ood.entries.v1          # legacy support
+ood.todayDraft.v2
 ```
 
 Draft autosaves after drawing changes, undo, and note changes. Explicit Save commits the entry and clears the draft.
@@ -279,7 +279,7 @@ Current app version:
 Application ID:
 
 ```text
-com.sodam.app
+com.ood.app
 ```
 
 Android config:
@@ -354,7 +354,7 @@ The user may manually replace these generated PNGs. If so, inspect the latest Gi
 Typical local project location:
 
 ```text
-C:\dev\sodam
+C:\dev\ood
 ```
 
 Physical Android test device:
@@ -366,7 +366,7 @@ R3CWC0JDAER
 Normal test loop:
 
 ```bash
-cd /c/dev/sodam
+cd /c/dev/ood
 git pull
 flutter clean
 flutter pub get
@@ -443,7 +443,7 @@ These are future ideas only. Do not implement them unless explicitly requested.
 Paste this:
 
 ```text
-Continue my Flutter project Sodam at GitHub repo minseo-1129/sodam.
+Continue my Flutter project Ood at GitHub repo minseo-1129/ood.
 
 First read docs/PROJECT_HANDOFF.md and inspect the latest main. Treat GitHub as the source of truth because I may have changed things since the previous chat.
 

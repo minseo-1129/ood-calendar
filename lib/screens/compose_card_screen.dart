@@ -125,7 +125,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
   Future<void> _save() async {
     _noteFocus.unfocus();
 
-    final confirmed = await showSodamConfirmDialog(
+    final confirmed = await showOodConfirmDialog(
       context: context,
       title: '이 기록을 저장할까요?',
       message: '오늘의 그림과 한 줄 메모를 이대로 남겨요.',
