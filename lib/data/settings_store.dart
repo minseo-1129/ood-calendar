@@ -3,6 +3,7 @@
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../content/prompt_provider.dart' as prompt_runtime;
 import '../content/prompt_themes.dart';
 
 class SodamSettings {
@@ -39,21 +40,30 @@ class SettingsStore {
     final theme = prefs.getString(_themeKey);
     final ageBand = prefs.getString(_ageBandKey);
 
-    return SodamSettings(
+    final settings = SodamSettings(
       onboarded: prefs.getBool(_onboardedKey) ?? false,
       promptTheme: (theme == null || theme.isEmpty) ? kDefaultTheme : theme,
       ageBand: (ageBand == null || ageBand.isEmpty) ? kDefaultAgeBand : ageBand,
     );
+
+    prompt_runtime.configurePromptContext(
+      theme: settings.promptTheme,
+      ageBand: settings.ageBand,
+    );
+
+    return settings;
   }
 
   Future<void> savePromptTheme(String theme) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_themeKey, theme);
+    prompt_runtime.configurePromptContext(theme: theme);
   }
 
   Future<void> saveAgeBand(String ageBand) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_ageBandKey, ageBand);
+    prompt_runtime.configurePromptContext(ageBand: ageBand);
   }
 
   Future<void> markOnboarded() async {
