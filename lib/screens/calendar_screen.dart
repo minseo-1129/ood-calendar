@@ -5,12 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
 import '../data/entry_store.dart';
+import '../data/settings_store.dart';
 import '../models/doodle_models.dart';
 import '../navigation/quiet_route.dart';
 import '../utils/date_labels.dart';
 import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'card_browse_screen.dart';
+import 'settings_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -79,6 +81,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
     await _loadMonth();
   }
 
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push(
+      quietRoute<void>(
+        SettingsScreen(
+          entryStore: widget.store,
+          settingsStore: SettingsStore(),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _loadMonth();
+  }
+
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
@@ -108,6 +123,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   title: monthLabel(_visibleMonth),
                   onBack: () => _changeMonth(-1),
                   onForward: () => _changeMonth(1),
+                  onTitleTap: _openSettings,
                 ),
                 Expanded(
                   child: LayoutBuilder(
