@@ -15,7 +15,7 @@ class SettingsScreen extends StatefulWidget {
     super.key,
     required this.entryStore,
     required this.settingsStore,
-    this.appVersion = '1.0.0 (3)',
+    this.appVersion = '1.0.1 (3)',
   });
 
   final EntryStore entryStore;
