@@ -26,8 +26,6 @@ class DailyLayoutMetrics {
     final media = MediaQuery.of(context);
     final widthLimit = media.size.width - horizontalPadding * 2;
 
-    // Keep a small safety margin so fractional logical pixels on different
-    // Android devices never push the fixed daily-screen column into overflow.
     const verticalSafety = 6.0;
     final safeHeight =
         media.size.height - media.padding.top - media.padding.bottom;
@@ -151,9 +149,59 @@ class DailyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OodHeader(
-      title: drawingDateLabel(date),
-      onBack: onBack,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = math.min(
+          DailyLayoutMetrics.paperMaxWidth,
+          constraints.maxWidth,
+        );
+
+        return Center(
+          child: SizedBox(
+            width: width,
+            height: DailyLayoutMetrics.headerHeight,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    drawingDateLabel(date),
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: GoogleFonts.gaegu(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w400,
+                      color: kInk,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: onBack,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '닫기',
+                        style: GoogleFonts.gaegu(
+                          fontSize: 15,
+                          height: 1,
+                          fontWeight: FontWeight.w400,
+                          color: kSoftInk,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -257,8 +305,8 @@ Future<bool> showOodConfirmDialog({
   required BuildContext context,
   required String title,
   required String message,
-  String cancelLabel = 'Cancel',
-  String confirmLabel = 'Okay',
+  String cancelLabel = '취소',
+  String confirmLabel = '확인',
 }) async {
   final result = await showDialog<bool>(
     context: context,
