@@ -29,6 +29,25 @@ class OodApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'ood',
       theme: buildOodTheme(),
+      builder: (context, child) {
+        return ColoredBox(
+          color: kBackground,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final frameWidth =
+                  constraints.maxWidth > 360 ? 360.0 : constraints.maxWidth;
+
+              return Center(
+                child: SizedBox(
+                  width: frameWidth,
+                  height: constraints.maxHeight,
+                  child: child ?? const SizedBox.shrink(),
+                ),
+              );
+            },
+          ),
+        );
+      },
       home: BootGate(
         entryStore: EntryStore(),
         settingsStore: SettingsStore(),
