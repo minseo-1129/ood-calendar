@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
@@ -32,6 +33,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
   late DateTime _today;
   int _index = 0;
   bool _loading = true;
+  double _browseDragDx = 0;
 
   DateTime get _currentDate => _startDate.add(Duration(days: _index));
   DoodleEntry? get _currentEntry => _entries[dateKey(_currentDate)];
@@ -88,6 +90,36 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     });
 
     previousController?.dispose();
+  }
+
+  Future<void> _goToDay(int delta) async {
+    final controller = _controller;
+    if (controller == null || !controller.hasClients) return;
+
+    final target = (_index + delta).clamp(0, _pageCount - 1).toInt();
+    if (target == _index) return;
+
+    await controller.animateToPage(
+      target,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _finishBrowseSwipe(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    final enoughDistance = _browseDragDx.abs() >= 34;
+    final enoughVelocity = velocity.abs() >= 180;
+
+    if (enoughDistance || enoughVelocity) {
+      if (_browseDragDx < 0 || (velocity < 0 && _browseDragDx.abs() < 8)) {
+        _goToDay(1);
+      } else if (_browseDragDx > 0 || velocity > 0) {
+        _goToDay(-1);
+      }
+    }
+
+    _browseDragDx = 0;
   }
 
   Future<void> _editCurrent() async {
@@ -169,10 +201,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     final editable = isSameDay(_currentDate, _today);
-    final paperWidth = DailyLayoutMetrics.paperWidth(
-      context,
-      bottomPadding: 12,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
     final paperHeight = paperWidth * 4 / 3;
     final promptText = _currentEntry?.prompt.isNotEmpty == true
         ? _currentEntry!.prompt
@@ -181,48 +210,57 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
             : '';
 
     return Scaffold(
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                DailyLayoutMetrics.horizontalPadding,
-                DailyLayoutMetrics.topPadding,
-                DailyLayoutMetrics.horizontalPadding,
-                12,
-              ),
-              child: Column(
-                children: [
-                  DailyHeader(
-                    date: _currentDate,
-                    onBack: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(
-                    height: DailyLayoutMetrics.headerToPrompt,
-                  ),
-                  DailyPromptBlock(
-                    text: promptText,
-                    label: promptText.isEmpty ? null : '그날의 질문',
-                  ),
-                  const SizedBox(
-                    height: DailyLayoutMetrics.promptToPaper,
-                  ),
-                  SizedBox(
-                    width: paperWidth,
-                    height: paperHeight,
-                    child: DailyPaperShadow(
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: (_) => _browseDragDx = 0,
+        onHorizontalDragUpdate: (details) {
+          _browseDragDx += details.delta.dx;
+        },
+        onHorizontalDragEnd: _finishBrowseSwipe,
+        onHorizontalDragCancel: () => _browseDragDx = 0,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              DailyLayoutMetrics.horizontalPadding,
+              DailyLayoutMetrics.dailyTopPadding,
+              DailyLayoutMetrics.horizontalPadding,
+              DailyLayoutMetrics.bottomPadding,
+            ),
+            child: Column(
+              children: [
+                DailyHeader(
+                  date: _currentDate,
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(
+                  height: DailyLayoutMetrics.headerToPrompt,
+                ),
+                DailyPromptBlock(
+                  text: promptText,
+                  label: promptText.isEmpty ? null : '그날의 질문',
+                ),
+                const SizedBox(
+                  height: DailyLayoutMetrics.promptToPaper,
+                ),
+                SizedBox(
+                  width: paperWidth,
+                  height: paperHeight,
+                  child: DailyPaperShadow(
+                    child: ColoredBox(
+                      color: kPaper,
                       child: PageView.builder(
                         controller: _controller,
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: _pageCount,
                         onPageChanged: (index) {
                           setState(() => _index = index);
                         },
                         itemBuilder: (context, index) {
-                        final date = _startDate.add(Duration(days: index));
-                        final entry = _entries[dateKey(date)];
+                          final date = _startDate.add(Duration(days: index));
+                          final entry = _entries[dateKey(date)];
 
-                        final isLockedEmpty =
-                            entry == null && date.isBefore(_today);
+                          final isLockedEmpty =
+                              entry == null && date.isBefore(_today);
 
                           if (isLockedEmpty) {
                             return const LockedEmptySheet(
@@ -246,66 +284,65 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    height: DailyLayoutMetrics.paperToNote,
-                  ),
-                  SizedBox(
-                    height: DailyLayoutMetrics.noteSlotHeight,
-                    child: Center(
-                      child: SizedBox(
-                        width: paperWidth,
-                        child: _currentEntry == null ||
-                                _currentEntry!.note.isEmpty
-                            ? const SizedBox.shrink()
-                            : Text(
-                                _currentEntry!.note,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 18,
-                                  height: 1.22,
-                                  color: kMutedInk,
-                                ),
+                ),
+                const SizedBox(
+                  height: DailyLayoutMetrics.paperToNote,
+                ),
+                SizedBox(
+                  height: DailyLayoutMetrics.noteSlotHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 14),
+                    child: SizedBox(
+                      width: paperWidth,
+                      child: _currentEntry == null || _currentEntry!.note.isEmpty
+                          ? const SizedBox.shrink()
+                          : Text(
+                              _currentEntry!.note,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.gaegu(
+                                fontSize: 18,
+                                height: 1.45,
+                                color: kMutedInk,
                               ),
-                      ),
+                            ),
                     ),
                   ),
-                  const SizedBox(
-                    height: DailyLayoutMetrics.noteToActions,
+                ),
+                const SizedBox(
+                  height: DailyLayoutMetrics.noteToActions,
+                ),
+                SizedBox(
+                  height: DailyLayoutMetrics.actionHeight,
+                  child: Row(
+                    children: [
+                      if (_currentEntry != null)
+                        DailyTextAction(
+                          label: '삭제',
+                          onTap: _deleteCurrent,
+                        )
+                      else
+                        const SizedBox.shrink(),
+                      const Spacer(),
+                      if (editable)
+                        DailyTextAction(
+                          label: '수정',
+                          onTap: _editCurrent,
+                          strong: true,
+                        )
+                      else
+                        const SizedBox(
+                          width: 44,
+                          height: DailyLayoutMetrics.actionHeight,
+                        ),
+                    ],
                   ),
-                  SizedBox(
-                    height: DailyLayoutMetrics.actionHeight,
-                    child: Row(
-                      children: [
-                        if (_currentEntry != null)
-                          DailyTextAction(
-                            label: 'Delete',
-                            onTap: _deleteCurrent,
-                          )
-                        else
-                          const SizedBox.shrink(),
-                        const Spacer(),
-                        if (editable)
-                          DailyTextAction(
-                            label: 'Edit',
-                            onTap: _editCurrent,
-                            strong: true,
-                          )
-                        else
-                          const SizedBox(
-                            width: 44,
-                            height: DailyLayoutMetrics.actionHeight,
-                          ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

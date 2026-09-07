@@ -47,19 +47,33 @@ void main() {
     expect(entry.prompt, '');
   });
 
-  test('date labels use full month names', () {
+  test('date labels use the Korean prototype format', () {
     final date = DateTime(2026, 8, 31);
     expect(dateKey(date), '20260831');
-    expect(drawingDateLabel(date), 'August 31');
-    expect(monthLabel(date), 'August 2026');
+    expect(drawingDateLabel(date), '8월 31일 월요일');
+    expect(monthLabel(date), '2026년 8월');
   });
 
-  test('daily prompt is deterministic and comes from the local pool', () {
+  test('daily prompt is deterministic and follows the selected theme', () {
     final date = DateTime(2026, 8, 31);
-    final first = promptForDate(date);
-    final second = promptForDate(date);
 
-    expect(first, second);
-    expect(dailyPromptPool, contains(first));
+    configurePromptContext(
+      theme: 'season',
+      ageBand: '30s',
+      tenure: 10,
+    );
+    final seasonPrompt = promptForDate(date);
+    expect(promptForDate(date), seasonPrompt);
+
+    configurePromptContext(theme: 'object:cup');
+    final cupPrompt = promptForDate(date);
+    expect(promptForDate(date), cupPrompt);
+    expect(cupPrompt, isNot(seasonPrompt));
+
+    configurePromptContext(
+      theme: 'season',
+      ageBand: '30s',
+      tenure: 0,
+    );
   });
 }

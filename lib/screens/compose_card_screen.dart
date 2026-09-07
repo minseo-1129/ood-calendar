@@ -153,165 +153,149 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paperWidth = DailyLayoutMetrics.paperWidth(
-      context,
-      bottomPadding: 20,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
     final paperHeight = paperWidth * 4 / 3;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, viewport) {
-            return SingleChildScrollView(
-              controller: _scrollController,
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(
-                DailyLayoutMetrics.horizontalPadding,
-                DailyLayoutMetrics.topPadding,
-                DailyLayoutMetrics.horizontalPadding,
-                20,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(
+            DailyLayoutMetrics.horizontalPadding,
+            DailyLayoutMetrics.dailyTopPadding,
+            DailyLayoutMetrics.horizontalPadding,
+            DailyLayoutMetrics.bottomPadding,
+          ),
+          child: Column(
+            children: [
+              DailyHeader(
+                date: widget.date,
+                onBack: () => Navigator.of(context).pop(),
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: viewport.maxHeight - 44,
-                ),
-                child: Column(
-                  children: [
-                    DailyHeader(
-                      date: widget.date,
-                      onBack: () => Navigator.of(context).pop(),
-                    ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.headerToPrompt,
-                    ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.promptSlotHeight,
-                    ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.promptToPaper,
-                    ),
-                    SizedBox(
-                      width: paperWidth,
-                      height: paperHeight,
-                      child: DailySheet(
+              const SizedBox(
+                height: DailyLayoutMetrics.headerToPrompt,
+              ),
+              DailyPromptBlock(text: widget.prompt),
+              const SizedBox(
+                height: DailyLayoutMetrics.promptToPaper,
+              ),
+              SizedBox(
+                width: paperWidth,
+                height: paperHeight,
+                child: DailyPaperShadow(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      const ColoredBox(color: kPaper),
+                      DailySheet(
                         strokes: _strokes,
-                        strokeWidth: 3.0,
+                        strokeWidth: 3.3,
+                        showShadow: false,
                       ),
-                    ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.paperToNote,
-                    ),
-                    SizedBox(
-                      height: DailyLayoutMetrics.noteSlotHeight,
-                      child: Center(
-                        child: SizedBox(
-                          width: paperWidth,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextField(
-                                controller: _noteController,
-                                focusNode: _noteFocus,
-                                minLines: 1,
-                                maxLines: 3,
-                                maxLength: _noteLimit,
-                                maxLengthEnforcement:
-                                    MaxLengthEnforcement.enforced,
-                                inputFormatters: <TextInputFormatter>[
-                                  LengthLimitingTextInputFormatter(_noteLimit),
-                                ],
-                                keyboardType: TextInputType.text,
-                                textInputAction: TextInputAction.done,
-                                textAlign: TextAlign.center,
-                                onSubmitted: (_) => _noteFocus.unfocus(),
-                                onChanged: _noteChanged,
-                                scrollPadding:
-                                    const EdgeInsets.only(bottom: 180),
-                                style: GoogleFonts.gaegu(
-                                  fontSize: 18,
-                                  height: 1.22,
-                                  color: kInk.withAlpha(215),
-                                ),
-                                decoration: InputDecoration(
-                                  counterText: '',
-                                  hintText: _noteFocus.hasFocus
-                                      ? null
-                                      : '한 줄 메모 남기기',
-                                  hintStyle: GoogleFonts.gaegu(
-                                    fontSize: 18,
-                                    height: 1.22,
-                                    color: kMutedInk.withAlpha(140),
-                                  ),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 0,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 120),
-                                width: paperWidth,
-                                height: 0.7,
-                                color: _noteFocus.hasFocus
-                                    ? kMutedInk.withAlpha(88)
-                                    : kMutedInk.withAlpha(44),
-                              ),
-                              const SizedBox(height: 6),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: AnimatedOpacity(
-                                  opacity: _noteFocus.hasFocus ? 1 : 0,
-                                  duration: const Duration(milliseconds: 120),
-                                  child: Text(
-                                    '$_remainingCharacters자 남음',
-                                    style: GoogleFonts.gaegu(
-                                      fontSize: 12,
-                                      height: 1,
-                                      color: kSoftInk,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.paperToNote,
+              ),
+              SizedBox(
+                height: DailyLayoutMetrics.noteSlotHeight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: SizedBox(
+                    width: paperWidth,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        TextField(
+                          controller: _noteController,
+                          focusNode: _noteFocus,
+                          minLines: 1,
+                          maxLines: 3,
+                          maxLength: _noteLimit,
+                          maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                          inputFormatters: <TextInputFormatter>[
+                            LengthLimitingTextInputFormatter(_noteLimit),
+                          ],
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          textAlign: TextAlign.center,
+                          onSubmitted: (_) => _noteFocus.unfocus(),
+                          onChanged: _noteChanged,
+                          scrollPadding: const EdgeInsets.only(bottom: 180),
+                          style: GoogleFonts.gaegu(
+                            fontSize: 18,
+                            height: 1.45,
+                            color: kInk,
+                          ),
+                          decoration: InputDecoration(
+                            counterText: '',
+                            hintText:
+                                _noteFocus.hasFocus ? null : '한 줄 메모 남기기',
+                            hintStyle: GoogleFonts.gaegu(
+                              fontSize: 18,
+                              height: 1.45,
+                              color: kMutedInk.withAlpha(140),
+                            ),
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.only(bottom: 10),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.noteToActions,
-                    ),
-                    SizedBox(
-                      height: DailyLayoutMetrics.actionHeight,
-                      child: Row(
-                        children: [
-                          DailyTextAction(
-                            label: 'Edit',
-                            onTap: _editDrawing,
+                        Container(
+                          width: paperWidth,
+                          height: 1,
+                          color: kMutedInk.withAlpha(107),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          height: 14,
+                          child: Center(
+                            child: Text(
+                              _noteFocus.hasFocus
+                                  ? '$_remainingCharacters자 남음'
+                                  : '',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.gaegu(
+                                fontSize: 12,
+                                height: 1,
+                                color: kSoftInk,
+                              ),
+                            ),
                           ),
-                          const Spacer(),
-                          DailyTextAction(
-                            label: 'Save',
-                            onTap: _save,
-                            strong: true,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: DailyLayoutMetrics.noteToActions,
+              ),
+              SizedBox(
+                height: DailyLayoutMetrics.actionHeight,
+                child: Row(
+                  children: [
+                    DailyTextAction(
+                      label: '수정',
+                      onTap: _editDrawing,
+                    ),
+                    const Spacer(),
+                    DailyTextAction(
+                      label: '저장',
+                      onTap: _save,
+                      strong: true,
                     ),
                   ],
                 ),
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );

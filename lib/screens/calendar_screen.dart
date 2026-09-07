@@ -5,12 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
 import '../data/entry_store.dart';
+import '../data/settings_store.dart';
 import '../models/doodle_models.dart';
 import '../navigation/quiet_route.dart';
 import '../utils/date_labels.dart';
 import '../widgets/daily_layout.dart';
 import '../widgets/daily_sheet.dart';
 import 'card_browse_screen.dart';
+import 'settings_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({
@@ -79,6 +81,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
     await _loadMonth();
   }
 
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push(
+      quietRoute<void>(
+        SettingsScreen(
+          entryStore: widget.store,
+          settingsStore: SettingsStore(),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _loadMonth();
+  }
+
   @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
@@ -97,17 +112,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
           },
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              22,
+              36,
               DailyLayoutMetrics.topPadding,
-              22,
+              36,
               24,
             ),
             child: Column(
               children: [
-                OodHeader(
+                _CalendarHeader(
                   title: monthLabel(_visibleMonth),
-                  onBack: () => _changeMonth(-1),
-                  onForward: () => _changeMonth(1),
+                  onPrevious: () => _changeMonth(-1),
+                  onNext: () => _changeMonth(1),
+                  onTitleTap: _openSettings,
                 ),
                 Expanded(
                   child: LayoutBuilder(
@@ -151,12 +167,104 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 }
 
+class _CalendarHeader extends StatelessWidget {
+  const _CalendarHeader({
+    required this.title,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onTitleTap,
+  });
+
+  final String title;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final VoidCallback onTitleTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: DailyLayoutMetrics.headerHeight,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: onTitleTap,
+              behavior: HitTestBehavior.opaque,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  title,
+                  style: GoogleFonts.gaegu(
+                    fontSize: 28,
+                    height: 1,
+                    fontWeight: FontWeight.w400,
+                    color: kInk,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          _CalendarArrow(
+            icon: Icons.chevron_left_rounded,
+            semanticsLabel: '이전 달',
+            onTap: onPrevious,
+          ),
+          const SizedBox(width: 8),
+          _CalendarArrow(
+            icon: Icons.chevron_right_rounded,
+            semanticsLabel: '다음 달',
+            onTap: onNext,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarArrow extends StatelessWidget {
+  const _CalendarArrow({
+    required this.icon,
+    required this.semanticsLabel,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String semanticsLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 28,
+          height: 36,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Icon(
+              icon,
+              size: 24,
+              color: kMutedInk,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _WeekdayRow extends StatelessWidget {
   const _WeekdayRow();
 
   @override
   Widget build(BuildContext context) {
-    const weekdays = <String>['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const weekdays = <String>['일', '월', '화', '수', '목', '금', '토'];
 
     return Row(
       children: weekdays
@@ -166,10 +274,10 @@ class _WeekdayRow extends StatelessWidget {
                 day,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.gaegu(
-                  fontSize: 16,
+                  fontSize: 12,
                   height: 1,
                   fontWeight: FontWeight.w400,
-                  color: kMutedInk.withAlpha(220),
+                  color: kSoftInk,
                 ),
               ),
             ),
@@ -196,7 +304,7 @@ class _MonthGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final first = DateTime(month.year, month.month, 1);
     final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
-    final leading = first.weekday - DateTime.monday;
+    final leading = first.weekday % 7;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -269,47 +377,61 @@ class _DayCell extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 2),
-        child: Column(
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            SizedBox(
-              height: 24,
-              child: Center(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 160),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
+            if (isToday)
+              Positioned(
+                left: 2,
+                right: 2,
+                top: 0,
+                height: 70,
+                child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: isToday
-                        ? kAccent.withAlpha(24)
-                        : Colors.transparent,
+                    color: kAccent.withAlpha(33),
                     borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    date.day.toString(),
-                    style: GoogleFonts.gaegu(
-                      fontSize: 16,
-                      height: 1,
-                      fontWeight:
-                          isToday ? FontWeight.w600 : FontWeight.w400,
-                      color: dateColor,
-                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Expanded(
-              child: Center(
-                child: entry != null
-                    ? DoodleThumbnail(
-                        strokes: entry!.strokes,
-                        width: 38,
-                        height: 50,
-                      )
-                    : const SizedBox.shrink(),
-              ),
+            Column(
+              children: [
+                SizedBox(
+                  height: 24,
+                  child: Center(
+                    child: Text(
+                      date.day.toString(),
+                      style: GoogleFonts.gaegu(
+                        fontSize: isToday ? 13 : 12,
+                        height: 1,
+                        fontWeight:
+                            isToday ? FontWeight.w700 : FontWeight.w400,
+                        color: dateColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Expanded(
+                  child: Center(
+                    child: entry != null
+                        ? DoodleThumbnail(
+                            strokes: entry!.strokes,
+                            width: 38,
+                            height: 44,
+                          )
+                        : Container(
+                            width: 4,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: isFuture
+                                  ? const Color(0xFFD6D2C7)
+                                  : kSoftInk,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

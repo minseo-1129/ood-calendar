@@ -7,51 +7,48 @@ import '../app/theme.dart';
 import '../utils/date_labels.dart';
 
 class DailyLayoutMetrics {
-  static const double horizontalPadding = 24;
-  static const double topPadding = 30;
+  // Major app screens (onboarding / theme / calendar / settings) keep their
+  // shared title baseline at 30 logical pixels below SafeArea.
+  static const double screenTitleTopPadding = 30;
+
+  // DailyHeader's Gaegu glyph box sits ~3px higher than the calendar title
+  // for the same padding. 33px aligns the visible top edge of the daily date
+  // with the major-screen title line in the 360px reference frame.
+  static const double dailyTopPadding = 33;
+  static const double horizontalPadding = 36;
   static const double headerHeight = 46;
-  static const double headerToPrompt = 28;
-  static const double promptSlotHeight = 48;
-  static const double promptToPaper = 26;
+  static const double headerToPrompt = 0;
+  static const double promptSlotHeight = 52;
+  static const double promptToPaper = 12;
   static const double paperMaxWidth = 288;
-  static const double paperToNote = 26;
+  static const double paperToNote = 22;
   static const double noteSlotHeight = 104;
-  static const double noteToActions = 8;
+  static const double noteToActions = 0;
   static const double actionHeight = 44;
+
+  // Do not reserve the prototype's 68px tail as explicit padding. A Flutter
+  // SafeArea can be a few pixels shorter than the 752px reference height.
+  // Leaving the Column top-aligned lets the remaining viewport become that
+  // trailing blank space naturally without moving the fixed daily stack.
+  static const double bottomPadding = 0;
+
+  // Backward-compatible alias for top-level screens that were already using
+  // topPadding. Daily screens should use dailyTopPadding explicitly.
+  static const double topPadding = screenTitleTopPadding;
 
   static double paperWidth(
     BuildContext context, {
-    double bottomPadding = 20,
+    double bottomPadding = DailyLayoutMetrics.bottomPadding,
   }) {
     final media = MediaQuery.of(context);
-    final widthLimit =
-        media.size.width - horizontalPadding * 2;
-
-    // Keep a small safety margin so fractional logical pixels on different
-    // Android devices never push the fixed daily-screen column into overflow.
-    const verticalSafety = 6.0;
-    final safeHeight =
-        media.size.height - media.padding.top - media.padding.bottom;
-    final fixedVertical = topPadding +
-        headerHeight +
-        headerToPrompt +
-        promptSlotHeight +
-        promptToPaper +
-        paperToNote +
-        noteSlotHeight +
-        noteToActions +
-        actionHeight +
-        bottomPadding +
-        verticalSafety;
-
-    final availablePaperHeight =
-        math.max(0.0, safeHeight - fixedVertical);
-    final widthFromHeight = availablePaperHeight * 3 / 4;
-
-    return math.min(
-      paperMaxWidth,
-      math.min(widthLimit, widthFromHeight),
+    final widthLimit = math.max(
+      0.0,
+      media.size.width - horizontalPadding * 2,
     );
+
+    // Prototype paper is 288 x 384. Only shrink it when a device is genuinely
+    // narrower than the 360 logical-pixel reference viewport.
+    return math.min(paperMaxWidth, widthLimit);
   }
 }
 
@@ -61,11 +58,13 @@ class OodHeader extends StatelessWidget {
     required this.title,
     this.onBack,
     this.onForward,
+    this.onTitleTap,
   });
 
   final String title;
   final VoidCallback? onBack;
   final VoidCallback? onForward;
+  final VoidCallback? onTitleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -93,18 +92,22 @@ class OodHeader extends StatelessWidget {
                   ),
           ),
           Expanded(
-            child: Center(
-              child: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.gaegu(
-                    fontSize: 28,
-                    height: 1,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.5,
-                    color: kInk,
+            child: GestureDetector(
+              onTap: onTitleTap,
+              behavior: HitTestBehavior.opaque,
+              child: Center(
+                child: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.gaegu(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                      color: kInk,
+                    ),
                   ),
                 ),
               ),
@@ -147,9 +150,61 @@ class DailyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OodHeader(
-      title: drawingDateLabel(date),
-      onBack: onBack,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = math.min(
+          DailyLayoutMetrics.paperMaxWidth,
+          constraints.maxWidth,
+        );
+
+        return Center(
+          child: SizedBox(
+            width: width,
+            height: DailyLayoutMetrics.headerHeight,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(
+                  child: Text(
+                    drawingDateLabel(date),
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: GoogleFonts.gaegu(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w400,
+                      color: kInk,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: onBack,
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Text(
+                        '닫기',
+                        style: GoogleFonts.gaegu(
+                          fontSize: 15,
+                          height: 1,
+                          fontWeight: FontWeight.w400,
+                          color: kSoftInk,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -172,41 +227,48 @@ class DailyPromptBlock extends StatelessWidget {
       );
     }
 
+    final savedCard = label != null;
+
     return SizedBox(
       height: DailyLayoutMetrics.promptSlotHeight,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (label != null) ...[
+      child: Padding(
+        padding: EdgeInsets.only(top: savedCard ? 8 : 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (savedCard) ...[
+              Text(
+                label!,
+                style: GoogleFonts.gaegu(
+                  fontSize: 12,
+                  height: 1,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.2,
+                  color: kSoftInk,
+                ),
+              ),
+              const SizedBox(height: 6),
+            ],
             Text(
-              label!,
+              text,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.gaegu(
-                fontSize: 12,
-                height: 1,
+                fontSize: 19,
+                height: savedCard ? 1.3 : 1.35,
                 fontWeight: FontWeight.w400,
-                letterSpacing: 0.2,
-                color: kSoftInk,
+                color: kInk.withAlpha(190),
               ),
             ),
-            const SizedBox(height: 5),
           ],
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.gaegu(
-              fontSize: 19,
-              height: 1.05,
-              fontWeight: FontWeight.w400,
-              color: kInk.withAlpha(190),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class DailyTextAction extends StatelessWidget {
+class DailyTextAction extends StatefulWidget {
   const DailyTextAction({
     super.key,
     required this.label,
@@ -221,26 +283,46 @@ class DailyTextAction extends StatelessWidget {
   final bool strong;
 
   @override
+  State<DailyTextAction> createState() => _DailyTextActionState();
+}
+
+class _DailyTextActionState extends State<DailyTextAction> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final color = enabled
-        ? (strong ? kInk : kMutedInk)
+    final color = widget.enabled
+        ? (widget.strong ? kInk : kMutedInk)
         : kSoftInk.withAlpha(140);
 
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: DailyLayoutMetrics.actionHeight,
-        child: Align(
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: GoogleFonts.gaegu(
-              fontSize: 19,
-              height: 1,
-              fontWeight: strong ? FontWeight.w500 : FontWeight.w400,
-              letterSpacing: 0.3,
-              color: color,
+    return MouseRegion(
+      cursor: widget.enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: widget.enabled
+          ? (_) => setState(() => _hovered = true)
+          : null,
+      onExit: (_) {
+        if (_hovered) {
+          setState(() => _hovered = false);
+        }
+      },
+      child: GestureDetector(
+        onTap: widget.enabled ? widget.onTap : null,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: DailyLayoutMetrics.actionHeight,
+          child: Align(
+            alignment: Alignment.center,
+            child: Text(
+              widget.label,
+              style: GoogleFonts.gaegu(
+                fontSize: 19,
+                height: 1,
+                fontWeight: _hovered ? FontWeight.w600 : FontWeight.w400,
+                letterSpacing: 0.3,
+                color: color,
+              ),
             ),
           ),
         ),
@@ -249,13 +331,12 @@ class DailyTextAction extends StatelessWidget {
   }
 }
 
-
 Future<bool> showOodConfirmDialog({
   required BuildContext context,
   required String title,
   required String message,
-  String cancelLabel = 'Cancel',
-  String confirmLabel = 'Okay',
+  String cancelLabel = '취소',
+  String confirmLabel = '확인',
 }) async {
   final result = await showDialog<bool>(
     context: context,
@@ -314,8 +395,7 @@ Future<bool> showOodConfirmDialog({
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () =>
-                              Navigator.of(dialogContext).pop(false),
+                          onTap: () => Navigator.of(dialogContext).pop(false),
                           child: Center(
                             child: Text(
                               cancelLabel,
@@ -336,8 +416,7 @@ Future<bool> showOodConfirmDialog({
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () =>
-                              Navigator.of(dialogContext).pop(true),
+                          onTap: () => Navigator.of(dialogContext).pop(true),
                           child: Center(
                             child: Text(
                               confirmLabel,

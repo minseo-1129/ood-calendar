@@ -9,7 +9,7 @@ The app is intentionally constrained: one daily sheet, one doodle, an optional o
 Current app version:
 
 ```text
-1.0.0+2
+1.0.1+3
 ```
 
 Android package:
@@ -23,14 +23,13 @@ com.ood.app
 > not an update to the previous Sodam listing — a new Play Console entry and
 > Internal Testing track are required.
 
-The stable V1 product snapshot is preserved in the `v1` branch. Android release preparation lives on `main` and the `release/v1.0.0` branch.
+The stable V1 product snapshot is preserved in the `v1` branch. Android release preparation lives on `main` and the active release work branch.
 
 For signed Android APK / AAB instructions, see:
 
 ```text
 docs/ANDROID_RELEASE.md
 ```
-
 
 For restarting the project in a fresh ChatGPT session, use:
 
