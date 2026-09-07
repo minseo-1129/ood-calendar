@@ -24,7 +24,13 @@ class DailyLayoutMetrics {
   static const double noteSlotHeight = 104;
   static const double noteToActions = 0;
   static const double actionHeight = 44;
-  static const double bottomPadding = 68;
+
+  // Do not reserve the prototype's 68px tail as explicit padding. A Flutter
+  // SafeArea can be a few pixels shorter than the 752px reference height.
+  // Leaving the Column top-aligned lets the remaining viewport become that
+  // trailing blank space naturally (68px on the reference viewport, less on
+  // shorter devices) without moving the date, prompt, paper or actions.
+  static const double bottomPadding = 0;
 
   // Backward-compatible alias for top-level screens that were already using
   // topPadding. Daily screens should use dailyTopPadding explicitly.
