@@ -24,8 +24,7 @@ class DailyLayoutMetrics {
     double bottomPadding = 20,
   }) {
     final media = MediaQuery.of(context);
-    final widthLimit =
-        media.size.width - horizontalPadding * 2;
+    final widthLimit = media.size.width - horizontalPadding * 2;
 
     // Keep a small safety margin so fractional logical pixels on different
     // Android devices never push the fixed daily-screen column into overflow.
@@ -44,8 +43,7 @@ class DailyLayoutMetrics {
         bottomPadding +
         verticalSafety;
 
-    final availablePaperHeight =
-        math.max(0.0, safeHeight - fixedVertical);
+    final availablePaperHeight = math.max(0.0, safeHeight - fixedVertical);
     final widthFromHeight = availablePaperHeight * 3 / 4;
 
     return math.min(
@@ -61,11 +59,13 @@ class OodHeader extends StatelessWidget {
     required this.title,
     this.onBack,
     this.onForward,
+    this.onTitleTap,
   });
 
   final String title;
   final VoidCallback? onBack;
   final VoidCallback? onForward;
+  final VoidCallback? onTitleTap;
 
   @override
   Widget build(BuildContext context) {
@@ -93,18 +93,22 @@ class OodHeader extends StatelessWidget {
                   ),
           ),
           Expanded(
-            child: Center(
-              child: Transform.translate(
-                offset: const Offset(0, -1),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.gaegu(
-                    fontSize: 28,
-                    height: 1,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0.5,
-                    color: kInk,
+            child: GestureDetector(
+              onTap: onTitleTap,
+              behavior: HitTestBehavior.opaque,
+              child: Center(
+                child: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.gaegu(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                      color: kInk,
+                    ),
                   ),
                 ),
               ),
@@ -249,7 +253,6 @@ class DailyTextAction extends StatelessWidget {
   }
 }
 
-
 Future<bool> showOodConfirmDialog({
   required BuildContext context,
   required String title,
@@ -314,8 +317,7 @@ Future<bool> showOodConfirmDialog({
                     children: [
                       Expanded(
                         child: InkWell(
-                          onTap: () =>
-                              Navigator.of(dialogContext).pop(false),
+                          onTap: () => Navigator.of(dialogContext).pop(false),
                           child: Center(
                             child: Text(
                               cancelLabel,
@@ -336,8 +338,7 @@ Future<bool> showOodConfirmDialog({
                       ),
                       Expanded(
                         child: InkWell(
-                          onTap: () =>
-                              Navigator.of(dialogContext).pop(true),
+                          onTap: () => Navigator.of(dialogContext).pop(true),
                           child: Center(
                             child: Text(
                               confirmLabel,
