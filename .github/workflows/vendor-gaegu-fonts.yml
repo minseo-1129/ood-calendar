@@ -1,0 +1,49 @@
+name: Vendor Gaegu fonts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/vendor-gaegu-fonts.yml
+
+permissions:
+  contents: write
+
+jobs:
+  vendor-gaegu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download pinned Gaegu font assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          upstream="https://raw.githubusercontent.com/google/fonts/5e35378e6bda803962ee6fd257e444a7d459660d/ofl/gaegu"
+          mkdir -p assets/fonts assets/licenses/gaegu
+          curl --fail --location --silent --show-error "$upstream/Gaegu-Light.ttf" -o assets/fonts/Gaegu-Light.ttf
+          curl --fail --location --silent --show-error "$upstream/Gaegu-Regular.ttf" -o assets/fonts/Gaegu-Regular.ttf
+          curl --fail --location --silent --show-error "$upstream/Gaegu-Bold.ttf" -o assets/fonts/Gaegu-Bold.ttf
+          curl --fail --location --silent --show-error "$upstream/OFL.txt" -o assets/licenses/gaegu/OFL.txt
+          test -s assets/fonts/Gaegu-Light.ttf
+          test -s assets/fonts/Gaegu-Regular.ttf
+          test -s assets/fonts/Gaegu-Bold.ttf
+          test -s assets/licenses/gaegu/OFL.txt
+
+      - name: Commit bundled fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/fonts assets/licenses/gaegu
+          if git diff --cached --quiet; then
+            echo "Gaegu assets are already bundled."
+            exit 0
+          fi
+          git commit -m "Bundle Gaegu font assets"
+          git push origin HEAD:main
