@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app/boot_gate.dart';
 import 'app/theme.dart';
 import 'data/entry_store.dart';
-import 'screens/calendar_screen.dart';
+import 'data/settings_store.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +29,10 @@ class OodApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'ood',
       theme: buildOodTheme(),
-      home: CalendarScreen(store: EntryStore()),
+      home: BootGate(
+        entryStore: EntryStore(),
+        settingsStore: SettingsStore(),
+      ),
     );
   }
 }
