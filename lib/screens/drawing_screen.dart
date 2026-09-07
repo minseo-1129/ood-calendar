@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
@@ -144,10 +145,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paperWidth = DailyLayoutMetrics.paperWidth(
-      context,
-      bottomPadding: 20,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
     final paperHeight = paperWidth * 4 / 3;
     final paperSize = Size(paperWidth, paperHeight);
 
@@ -156,9 +154,9 @@ class _DrawingScreenState extends State<DrawingScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(
             DailyLayoutMetrics.horizontalPadding,
-            DailyLayoutMetrics.topPadding,
+            DailyLayoutMetrics.dailyTopPadding,
             DailyLayoutMetrics.horizontalPadding,
-            20,
+            DailyLayoutMetrics.bottomPadding,
           ),
           child: Column(
             children: [
@@ -182,32 +180,36 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   onPointerMove: (event) => _continueStroke(event, paperSize),
                   onPointerUp: (_) => _finishStroke(),
                   onPointerCancel: (_) => _finishStroke(),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      DailySheet(
-                        strokes: _strokes,
-                        currentStroke: _currentStroke,
-                        strokeWidth: 3.3,
-                      ),
-                      if (_sheetEmpty)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 18,
-                          child: IgnorePointer(
-                            child: Text(
-                              '여기에 그려보세요',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.gaegu(
-                                fontSize: 15,
-                                height: 1,
-                                color: const Color(0xFFD6D2C7),
+                  child: DailyPaperShadow(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        const ColoredBox(color: kPaper),
+                        DailySheet(
+                          strokes: _strokes,
+                          currentStroke: _currentStroke,
+                          strokeWidth: 3.3,
+                          showShadow: false,
+                        ),
+                        if (_sheetEmpty)
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 18,
+                            child: IgnorePointer(
+                              child: Text(
+                                '여기에 그려보세요',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.gaegu(
+                                  fontSize: 15,
+                                  height: 1,
+                                  color: const Color(0xFFD6D2C7),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -239,7 +241,6 @@ class _DrawingScreenState extends State<DrawingScreen> {
                   ],
                 ),
               ),
-              const Spacer(),
             ],
           ),
         ),
