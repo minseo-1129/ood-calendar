@@ -1,0 +1,162 @@
+name: Wire onboarding flow once
+
+on:
+  push:
+    branches:
+      - onboarding-and-themes
+    paths:
+      - .github/workflows/wire-onboarding-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Wire BootGate and Settings
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text(encoding='utf-8')
+              if old not in text:
+                  raise SystemExit(f'Expected snippet not found in {path}')
+              p.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          replace_once(
+              'lib/main.dart',
+              "import 'app/theme.dart';\nimport 'data/entry_store.dart';\nimport 'screens/calendar_screen.dart';",
+              "import 'app/boot_gate.dart';\nimport 'app/theme.dart';\nimport 'data/entry_store.dart';\nimport 'data/settings_store.dart';",
+          )
+          replace_once(
+              'lib/main.dart',
+              "      home: CalendarScreen(store: EntryStore()),",
+              "      home: BootGate(\n        entryStore: EntryStore(),\n        settingsStore: SettingsStore(),\n      ),",
+          )
+
+          replace_once(
+              'lib/widgets/daily_layout.dart',
+              "    this.onBack,\n    this.onForward,\n  });",
+              "    this.onBack,\n    this.onForward,\n    this.onTitleTap,\n  });",
+          )
+          replace_once(
+              'lib/widgets/daily_layout.dart',
+              "  final VoidCallback? onBack;\n  final VoidCallback? onForward;",
+              "  final VoidCallback? onBack;\n  final VoidCallback? onForward;\n  final VoidCallback? onTitleTap;",
+          )
+          replace_once(
+              'lib/widgets/daily_layout.dart',
+              """          Expanded(
+            child: Center(
+              child: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.gaegu(
+                    fontSize: 28,
+                    height: 1,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0.5,
+                    color: kInk,
+                  ),
+                ),
+              ),
+            ),
+          ),""",
+              """          Expanded(
+            child: GestureDetector(
+              onTap: onTitleTap,
+              behavior: HitTestBehavior.opaque,
+              child: Center(
+                child: Transform.translate(
+                  offset: const Offset(0, -1),
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.gaegu(
+                      fontSize: 28,
+                      height: 1,
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 0.5,
+                      color: kInk,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),""",
+          )
+
+          replace_once(
+              'lib/screens/calendar_screen.dart',
+              "import '../data/entry_store.dart';",
+              "import '../data/entry_store.dart';\nimport '../data/settings_store.dart';",
+          )
+          replace_once(
+              'lib/screens/calendar_screen.dart',
+              "import 'card_browse_screen.dart';",
+              "import 'card_browse_screen.dart';\nimport 'settings_screen.dart';",
+          )
+          replace_once(
+              'lib/screens/calendar_screen.dart',
+              """    await _loadMonth();
+  }
+
+  @override
+  Widget build(BuildContext context) {""",
+              """    await _loadMonth();
+  }
+
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push(
+      quietRoute<void>(
+        SettingsScreen(
+          entryStore: widget.store,
+          settingsStore: SettingsStore(),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    await _loadMonth();
+  }
+
+  @override
+  Widget build(BuildContext context) {""",
+          )
+          replace_once(
+              'lib/screens/calendar_screen.dart',
+              "                  onForward: () => _changeMonth(1),\n                ),",
+              "                  onForward: () => _changeMonth(1),\n                  onTitleTap: _openSettings,\n                ),",
+          )
+          PY
+
+      - name: Remove unrelated generated changes
+        shell: bash
+        run: |
+          git checkout origin/main -- \
+            linux/flutter/generated_plugins.cmake \
+            macos/Flutter/GeneratedPluginRegistrant.swift \
+            pubspec.lock \
+            windows/flutter/generated_plugins.cmake
+
+      - name: Commit final wiring
+        shell: bash
+        run: |
+          git rm .github/workflows/wire-onboarding-once.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add lib/main.dart lib/widgets/daily_layout.dart lib/screens/calendar_screen.dart \
+            linux/flutter/generated_plugins.cmake macos/Flutter/GeneratedPluginRegistrant.swift \
+            pubspec.lock windows/flutter/generated_plugins.cmake
+          git commit -m 'Wire onboarding and settings flow'
+          git push origin HEAD:onboarding-and-themes
