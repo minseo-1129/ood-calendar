@@ -70,7 +70,6 @@ class OnboardingScreen extends StatelessWidget {
                       '다음',
                       style: TextStyle(
                         fontSize: 19,
-                        fontWeight: FontWeight.w700,
                         color: kInk,
                       ),
                     ),
@@ -125,4 +124,12 @@ final ButtonStyle _quietButtonStyle = TextButton.styleFrom(
   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
   foregroundColor: kInk,
   overlayColor: Colors.transparent,
+).copyWith(
+  textStyle: WidgetStateProperty.resolveWith<TextStyle>(
+    (states) => TextStyle(
+      fontWeight: states.contains(WidgetState.hovered)
+          ? FontWeight.w600
+          : FontWeight.w400,
+    ),
+  ),
 );
