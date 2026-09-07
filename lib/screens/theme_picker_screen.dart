@@ -170,7 +170,6 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
                         widget.fromSettings ? '완료' : '시작하기',
                         style: const TextStyle(
                           fontSize: 19,
-                          fontWeight: FontWeight.w700,
                           color: kInk,
                         ),
                       ),
@@ -290,4 +289,12 @@ final ButtonStyle quietButtonStyle = TextButton.styleFrom(
   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
   foregroundColor: kInk,
   overlayColor: Colors.transparent,
+).copyWith(
+  textStyle: WidgetStateProperty.resolveWith<TextStyle>(
+    (states) => TextStyle(
+      fontWeight: states.contains(WidgetState.hovered)
+          ? FontWeight.w600
+          : FontWeight.w400,
+    ),
+  ),
 );
