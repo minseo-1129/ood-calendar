@@ -7,47 +7,42 @@ import '../app/theme.dart';
 import '../utils/date_labels.dart';
 
 class DailyLayoutMetrics {
-  static const double horizontalPadding = 24;
-  static const double topPadding = 30;
+  // Major app screens (onboarding / theme / calendar / settings) keep their
+  // shared title baseline at 30 logical pixels below SafeArea.
+  static const double screenTitleTopPadding = 30;
+
+  // The daily prototype is a fixed 360 x 780 composition. After the 28px
+  // status area, its 752px content column is laid out exactly as below.
+  static const double dailyTopPadding = 20;
+  static const double horizontalPadding = 36;
   static const double headerHeight = 46;
-  static const double headerToPrompt = 28;
-  static const double promptSlotHeight = 48;
-  static const double promptToPaper = 26;
+  static const double headerToPrompt = 0;
+  static const double promptSlotHeight = 52;
+  static const double promptToPaper = 12;
   static const double paperMaxWidth = 288;
-  static const double paperToNote = 26;
+  static const double paperToNote = 22;
   static const double noteSlotHeight = 104;
-  static const double noteToActions = 8;
+  static const double noteToActions = 0;
   static const double actionHeight = 44;
+  static const double bottomPadding = 68;
+
+  // Backward-compatible alias for top-level screens that were already using
+  // topPadding. Daily screens should use dailyTopPadding explicitly.
+  static const double topPadding = screenTitleTopPadding;
 
   static double paperWidth(
     BuildContext context, {
-    double bottomPadding = 20,
+    double bottomPadding = DailyLayoutMetrics.bottomPadding,
   }) {
     final media = MediaQuery.of(context);
-    final widthLimit = media.size.width - horizontalPadding * 2;
-
-    const verticalSafety = 6.0;
-    final safeHeight =
-        media.size.height - media.padding.top - media.padding.bottom;
-    final fixedVertical = topPadding +
-        headerHeight +
-        headerToPrompt +
-        promptSlotHeight +
-        promptToPaper +
-        paperToNote +
-        noteSlotHeight +
-        noteToActions +
-        actionHeight +
-        bottomPadding +
-        verticalSafety;
-
-    final availablePaperHeight = math.max(0.0, safeHeight - fixedVertical);
-    final widthFromHeight = availablePaperHeight * 3 / 4;
-
-    return math.min(
-      paperMaxWidth,
-      math.min(widthLimit, widthFromHeight),
+    final widthLimit = math.max(
+      0.0,
+      media.size.width - horizontalPadding * 2,
     );
+
+    // Prototype paper is 288 x 384. Only shrink it when a device is genuinely
+    // narrower than the 360 logical-pixel reference viewport.
+    return math.min(paperMaxWidth, widthLimit);
   }
 }
 
@@ -161,6 +156,8 @@ class DailyHeader extends StatelessWidget {
             width: width,
             height: DailyLayoutMetrics.headerHeight,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Expanded(
                   child: Text(
@@ -184,7 +181,7 @@ class DailyHeader extends StatelessWidget {
                     width: 44,
                     height: 44,
                     child: Align(
-                      alignment: Alignment.centerRight,
+                      alignment: Alignment.topRight,
                       child: Text(
                         '닫기',
                         style: GoogleFonts.gaegu(
@@ -224,35 +221,42 @@ class DailyPromptBlock extends StatelessWidget {
       );
     }
 
+    final savedCard = label != null;
+
     return SizedBox(
       height: DailyLayoutMetrics.promptSlotHeight,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (label != null) ...[
+      child: Padding(
+        padding: EdgeInsets.only(top: savedCard ? 8 : 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (savedCard) ...[
+              Text(
+                label!,
+                style: GoogleFonts.gaegu(
+                  fontSize: 12,
+                  height: 1,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.2,
+                  color: kSoftInk,
+                ),
+              ),
+              const SizedBox(height: 6),
+            ],
             Text(
-              label!,
+              text,
+              textAlign: TextAlign.center,
+              maxLines: savedCard ? 2 : 2,
+              overflow: TextOverflow.ellipsis,
               style: GoogleFonts.gaegu(
-                fontSize: 12,
-                height: 1,
+                fontSize: 19,
+                height: savedCard ? 1.3 : 1.35,
                 fontWeight: FontWeight.w400,
-                letterSpacing: 0.2,
-                color: kSoftInk,
+                color: kInk.withAlpha(190),
               ),
             ),
-            const SizedBox(height: 5),
           ],
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.gaegu(
-              fontSize: 19,
-              height: 1.05,
-              fontWeight: FontWeight.w400,
-              color: kInk.withAlpha(190),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
