@@ -11,9 +11,10 @@ class DailyLayoutMetrics {
   // shared title baseline at 30 logical pixels below SafeArea.
   static const double screenTitleTopPadding = 30;
 
-  // The daily prototype is a fixed 360 x 780 composition. After the 28px
-  // status area, its 752px content column is laid out exactly as below.
-  static const double dailyTopPadding = 20;
+  // DailyHeader's Gaegu glyph box sits ~3px higher than the calendar title
+  // for the same padding. 33px aligns the visible top edge of the daily date
+  // with the major-screen title line in the 360px reference frame.
+  static const double dailyTopPadding = 33;
   static const double horizontalPadding = 36;
   static const double headerHeight = 46;
   static const double headerToPrompt = 0;
@@ -28,8 +29,7 @@ class DailyLayoutMetrics {
   // Do not reserve the prototype's 68px tail as explicit padding. A Flutter
   // SafeArea can be a few pixels shorter than the 752px reference height.
   // Leaving the Column top-aligned lets the remaining viewport become that
-  // trailing blank space naturally (68px on the reference viewport, less on
-  // shorter devices) without moving the date, prompt, paper or actions.
+  // trailing blank space naturally without moving the fixed daily stack.
   static const double bottomPadding = 0;
 
   // Backward-compatible alias for top-level screens that were already using
@@ -252,7 +252,7 @@ class DailyPromptBlock extends StatelessWidget {
             Text(
               text,
               textAlign: TextAlign.center,
-              maxLines: savedCard ? 2 : 2,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.gaegu(
                 fontSize: 19,
