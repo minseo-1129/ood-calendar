@@ -3,7 +3,7 @@
 Ood V1 is configured for a signed Android release build with:
 
 - application ID: `com.ood.app`
-- version: `1.0.0+2`
+- version: `1.0.1+3`
 - compile SDK: 36
 - target SDK: 36
 - Java / Kotlin target: 17
@@ -11,42 +11,36 @@ Ood V1 is configured for a signed Android release build with:
 
 The real keystore and passwords must never be committed to GitHub.
 
-## 1. Create the upload keystore once
+## 1. Upload keystore
+
+The current Ood upload keystore is stored locally at:
+
+```text
+C:/dev/keys/ood-upload-key.jks
+```
+
+Keep the keystore and its password backed up somewhere private. Never commit the `.jks` file to GitHub.
+
+## 2. Local signing file
 
 From Git Bash on Windows:
 
 ```bash
-keytool -genkeypair -v \
-  -keystore C:/Users/USER/ood-upload-key.jks \
-  -keyalg RSA \
-  -keysize 2048 \
-  -validity 10000 \
-  -alias upload
+cd /c/dev/ood-calendar
 ```
 
-Choose a strong password and keep it somewhere safe. The keystore should also be backed up somewhere private.
-
-If `keytool` is not found, use the JDK bundled with Android Studio or the JDK used by Flutter.
-
-## 2. Create the local signing file
-
-```bash
-cd /c/dev/ood
-cp android/key.properties.example android/key.properties
-```
-
-Edit `android/key.properties`:
+`android/key.properties` should point to the private upload key:
 
 ```properties
 storePassword=YOUR_STORE_PASSWORD
 keyPassword=YOUR_KEY_PASSWORD
 keyAlias=upload
-storeFile=C:/Users/USER/ood-upload-key.jks
+storeFile=C:/dev/keys/ood-upload-key.jks
 ```
 
 Use forward slashes in the Windows path.
 
-The repository already ignores:
+The repository ignores:
 
 - `android/key.properties`
 - `*.jks`
@@ -87,6 +81,8 @@ Test at least:
 - edit today's entry
 - delete today's and a past saved entry
 - persistence after fully closing and reopening the app
+- onboarding and question-theme flow on a fresh install
+- bundled Gaegu font in the release build
 
 ## 4. Build the Google Play bundle
 
@@ -104,15 +100,23 @@ build/app/outputs/bundle/release/app-release.aab
 
 Upload that `.aab` to Google Play Console Internal Testing first.
 
-## Versioning after V1
+Expected metadata for this build:
 
-For the next Play upload, increase the build number in `pubspec.yaml`, for example:
-
-```yaml
-version: 1.0.1+2
+```text
+version name: 1.0.1
+version code: 3
+package: com.ood.app
 ```
 
-Google Play requires every uploaded Android build to use a higher version code.
+## Versioning after this build
+
+Every new Google Play upload must use a higher build number. For example:
+
+```yaml
+version: 1.0.2+4
+```
+
+Google Play requires every uploaded Android build to use a higher version code than all previous uploads.
 
 ## Launcher icon
 
@@ -126,50 +130,11 @@ Density-specific PNGs are committed directly:
 - xxhdpi: 144 × 144
 - xxxhdpi: 192 × 192
 
-Both normal and round launcher requests point to the same `@mipmap/ic_launcher` artwork. The previous adaptive-icon override was removed so Android/Samsung masks the approved artwork itself instead of displaying the earlier redrawn calendar/weather version.
-
-For the Play Console listing, export the 512 × 512 store icon from this same approved artwork before upload.
-
-
-## Launcher icon composition rule
-
-The launcher icon is composed from the calendar+doodle illustration, not from a cropped pre-framed icon image.
-
-- Legacy launcher PNGs use a plain Ood warm-ivory background and optically centered artwork.
-- Android 8+ uses a true adaptive icon: solid background layer + transparent calendar illustration foreground.
-- The adaptive foreground keeps the illustration inside the Android safe zone so Samsung/Pixel masks do not crop or shift it.
-- Round icons use the same centered composition rather than a separate crop.
-- The Play Store 512px asset is composed independently with its own padding.
-- Do not resize/crop a screenshot or a finished rounded-square icon to make future launcher assets.
-
-
-## PNG-only launcher assets
-
-The V1 Android launcher icon now uses raster PNG resources only.
-
-- No adaptive-icon XML wrapper.
-- No vector/SVG launcher artwork.
-- The calendar+doodle illustration is optically centered on a plain warm-ivory background.
-- Launcher composition is intentionally smaller (about 54% of the square) to leave breathing room on Samsung and other launchers.
-- Play Store artwork uses its own 512px composition at about 58% scale.
-
-
-## Final V1 icon and splash artwork
-
-The approved Ood calendar + doodle mark is now the single visual source for Android release branding.
-
-- Launcher icons are PNG only at 48 / 72 / 96 / 144 / 192 px.
-- Round launcher icons use the same centered PNG composition.
-- The illustration sits on the same plain warm ivory background (#F8F5EE); there is no radiant or pre-baked rounded-square frame.
-- The artwork is deliberately smaller and optically centered, with generous breathing room.
-- The splash screen uses a dedicated centered PNG rendition of the same illustration on the same ivory background.
-- Android 12+ splash styling also points to that PNG; no SVG/vector/adaptive foreground artwork is used.
-- The Play Console 512 px artwork is a PNG rendition of the same illustration with purpose-specific padding.
-
+Both normal and round launcher requests point to the same `@mipmap/ic_launcher` artwork. The Play Store listing should use the matching 512 × 512 store icon.
 
 ## Final high-density splash pass
 
-The splash mark now uses density-specific PNG resources instead of one low-resolution nodpi bitmap:
+The splash mark uses density-specific PNG resources:
 
 - mdpi: 288 × 288
 - hdpi: 432 × 432
@@ -177,4 +142,4 @@ The splash mark now uses density-specific PNG resources instead of one low-resol
 - xxhdpi: 864 × 864
 - xxxhdpi: 1152 × 1152
 
-This keeps the same centered calendar+doodle mark and warm ivory field while avoiding blur on high-density Android screens. The artwork remains deliberately small enough to stay inside the Android splash safe area.
+This keeps the centered calendar+doodle mark and warm ivory field sharp on high-density Android screens while remaining inside the Android splash safe area.
