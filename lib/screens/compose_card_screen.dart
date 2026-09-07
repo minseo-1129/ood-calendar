@@ -187,9 +187,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                     const SizedBox(
                       height: DailyLayoutMetrics.headerToPrompt,
                     ),
-                    const SizedBox(
-                      height: DailyLayoutMetrics.promptSlotHeight,
-                    ),
+                    DailyPromptBlock(text: widget.prompt),
                     const SizedBox(
                       height: DailyLayoutMetrics.promptToPaper,
                     ),
@@ -295,12 +293,12 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                       child: Row(
                         children: [
                           DailyTextAction(
-                            label: 'Edit',
+                            label: '수정',
                             onTap: _editDrawing,
                           ),
                           const Spacer(),
                           DailyTextAction(
-                            label: 'Save',
+                            label: '저장',
                             onTap: _save,
                             strong: true,
                           ),
