@@ -2,6 +2,7 @@
 // no progress bar — the app promises calm, so onboarding has to behave.
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
 import '../data/entry_store.dart';
@@ -126,7 +127,7 @@ final ButtonStyle _quietButtonStyle = TextButton.styleFrom(
   overlayColor: Colors.transparent,
 ).copyWith(
   textStyle: WidgetStateProperty.resolveWith<TextStyle>(
-    (states) => TextStyle(
+    (states) => GoogleFonts.gaegu(
       fontWeight: states.contains(WidgetState.hovered)
           ? FontWeight.w600
           : FontWeight.w400,
