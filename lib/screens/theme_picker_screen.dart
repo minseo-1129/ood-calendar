@@ -73,7 +73,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
       backgroundColor: kBackground,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(36, 0, 36, 26),
+          padding: const EdgeInsets.fromLTRB(36, 30, 36, 26),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
