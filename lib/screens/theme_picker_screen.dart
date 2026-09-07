@@ -124,17 +124,25 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
               ],
               if (_objectSelected) ...<Widget>[
                 const SizedBox(height: 18),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: <Widget>[
-                    for (final ObjectTheme option in kObjectThemes)
-                      _ObjectChip(
-                        label: option.label,
-                        selected: _theme == '$kObjectThemePrefix${option.id}',
-                        onTap: () => _pick('$kObjectThemePrefix${option.id}'),
-                      ),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: <Widget>[
+                        for (final ObjectTheme option in kObjectThemes)
+                          _ObjectChip(
+                            label: option.label,
+                            selected:
+                                _theme == '$kObjectThemePrefix${option.id}',
+                            onTap: () =>
+                                _pick('$kObjectThemePrefix${option.id}'),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
               const Spacer(),
