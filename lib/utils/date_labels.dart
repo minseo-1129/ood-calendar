@@ -2,13 +2,13 @@ String dateKey(DateTime date) {
   final year = date.year.toString().padLeft(4, '0');
   final month = date.month.toString().padLeft(2, '0');
   final day = date.day.toString().padLeft(2, '0');
-  return year + month + day;
+  return '$year$month$day';
 }
 
 String monthKey(DateTime date) {
   final year = date.year.toString().padLeft(4, '0');
   final month = date.month.toString().padLeft(2, '0');
-  return year + month;
+  return '$year$month';
 }
 
 DateTime dateFromKey(String key) {
@@ -24,17 +24,11 @@ bool isSameDay(DateTime a, DateTime b) {
 }
 
 String drawingDateLabel(DateTime date) {
-  const months = <String>[
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return months[date.month - 1] + ' ' + date.day.toString();
+  const weekdays = <String>['월', '화', '수', '목', '금', '토', '일'];
+  final weekday = weekdays[date.weekday - DateTime.monday];
+  return '${date.month}월 ${date.day}일 ${weekday}요일';
 }
 
 String monthLabel(DateTime date) {
-  const months = <String>[
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
-  return months[date.month - 1] + ' ' + date.year.toString();
+  return '${date.year}년 ${date.month}월';
 }
