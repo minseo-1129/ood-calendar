@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
@@ -37,6 +40,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
 
   bool get _canUndo => _strokes.isNotEmpty;
   bool get _canNext => _strokes.isNotEmpty;
+  bool get _sheetEmpty => _strokes.isEmpty && _currentStroke.isEmpty;
 
   @override
   void initState() {
@@ -175,16 +179,36 @@ class _DrawingScreenState extends State<DrawingScreen> {
                 height: paperHeight,
                 child: Listener(
                   behavior: HitTestBehavior.opaque,
-                  onPointerDown: (event) =>
-                      _startStroke(event, paperSize),
-                  onPointerMove: (event) =>
-                      _continueStroke(event, paperSize),
+                  onPointerDown: (event) => _startStroke(event, paperSize),
+                  onPointerMove: (event) => _continueStroke(event, paperSize),
                   onPointerUp: (_) => _finishStroke(),
                   onPointerCancel: (_) => _finishStroke(),
-                  child: DailySheet(
-                    strokes: _strokes,
-                    currentStroke: _currentStroke,
-                    strokeWidth: 3.3,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      DailySheet(
+                        strokes: _strokes,
+                        currentStroke: _currentStroke,
+                        strokeWidth: 3.3,
+                      ),
+                      if (_sheetEmpty)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 18,
+                          child: IgnorePointer(
+                            child: Text(
+                              '여기에 그려보세요',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.gaegu(
+                                fontSize: 15,
+                                height: 1,
+                                color: kPaperEdge,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -202,13 +226,13 @@ class _DrawingScreenState extends State<DrawingScreen> {
                 child: Row(
                   children: [
                     DailyTextAction(
-                      label: 'Undo',
+                      label: '되돌리기',
                       enabled: _canUndo,
                       onTap: _undo,
                     ),
                     const Spacer(),
                     DailyTextAction(
-                      label: 'Next',
+                      label: '다음',
                       enabled: _canNext,
                       onTap: _next,
                       strong: true,
