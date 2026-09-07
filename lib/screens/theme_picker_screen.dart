@@ -289,5 +289,5 @@ final ButtonStyle quietButtonStyle = TextButton.styleFrom(
   minimumSize: const Size(44, 44),
   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
   foregroundColor: kInk,
-  overlayColor: kAccent,
+  overlayColor: Colors.transparent,
 );
