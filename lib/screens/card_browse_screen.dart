@@ -317,7 +317,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     children: [
                       if (_currentEntry != null)
                         DailyTextAction(
-                          label: 'Delete',
+                          label: '삭제',
                           onTap: _deleteCurrent,
                         )
                       else
@@ -325,7 +325,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                       const Spacer(),
                       if (editable)
                         DailyTextAction(
-                          label: 'Edit',
+                          label: '수정',
                           onTap: _editCurrent,
                           strong: true,
                         )
