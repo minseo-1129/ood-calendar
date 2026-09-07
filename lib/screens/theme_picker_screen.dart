@@ -2,6 +2,7 @@
 // onboarding step, and from Settings (where it pops instead of replacing).
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../app/theme.dart';
 import '../content/prompt_themes.dart';
@@ -291,7 +292,7 @@ final ButtonStyle quietButtonStyle = TextButton.styleFrom(
   overlayColor: Colors.transparent,
 ).copyWith(
   textStyle: WidgetStateProperty.resolveWith<TextStyle>(
-    (states) => TextStyle(
+    (states) => GoogleFonts.gaegu(
       fontWeight: states.contains(WidgetState.hovered)
           ? FontWeight.w600
           : FontWeight.w400,
