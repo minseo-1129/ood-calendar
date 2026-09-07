@@ -45,11 +45,10 @@ class OnboardingScreen extends StatelessWidget {
       backgroundColor: kBackground,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(36, 0, 36, 26),
+          padding: const EdgeInsets.fromLTRB(36, 30, 36, 26),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              const SizedBox(height: 96),
               const Text(
                 '하루에 한 장,\n그림으로 남기기',
                 style: TextStyle(fontSize: 28, height: 1.25, color: kInk),
