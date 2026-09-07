@@ -268,7 +268,7 @@ class DailyPromptBlock extends StatelessWidget {
   }
 }
 
-class DailyTextAction extends StatelessWidget {
+class DailyTextAction extends StatefulWidget {
   const DailyTextAction({
     super.key,
     required this.label,
@@ -283,26 +283,46 @@ class DailyTextAction extends StatelessWidget {
   final bool strong;
 
   @override
+  State<DailyTextAction> createState() => _DailyTextActionState();
+}
+
+class _DailyTextActionState extends State<DailyTextAction> {
+  bool _hovered = false;
+
+  @override
   Widget build(BuildContext context) {
-    final color = enabled
-        ? (strong ? kInk : kMutedInk)
+    final color = widget.enabled
+        ? (widget.strong ? kInk : kMutedInk)
         : kSoftInk.withAlpha(140);
 
-    return GestureDetector(
-      onTap: enabled ? onTap : null,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: DailyLayoutMetrics.actionHeight,
-        child: Align(
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: GoogleFonts.gaegu(
-              fontSize: 19,
-              height: 1,
-              fontWeight: strong ? FontWeight.w500 : FontWeight.w400,
-              letterSpacing: 0.3,
-              color: color,
+    return MouseRegion(
+      cursor: widget.enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onEnter: widget.enabled
+          ? (_) => setState(() => _hovered = true)
+          : null,
+      onExit: (_) {
+        if (_hovered) {
+          setState(() => _hovered = false);
+        }
+      },
+      child: GestureDetector(
+        onTap: widget.enabled ? widget.onTap : null,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: DailyLayoutMetrics.actionHeight,
+          child: Align(
+            alignment: Alignment.center,
+            child: Text(
+              widget.label,
+              style: GoogleFonts.gaegu(
+                fontSize: 19,
+                height: 1,
+                fontWeight: _hovered ? FontWeight.w600 : FontWeight.w400,
+                letterSpacing: 0.3,
+                color: color,
+              ),
             ),
           ),
         ),
