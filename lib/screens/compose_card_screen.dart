@@ -198,7 +198,7 @@ class _ComposeCardScreenState extends State<ComposeCardScreen> {
                       height: paperHeight,
                       child: DailySheet(
                         strokes: _strokes,
-                        strokeWidth: 3.0,
+                        strokeWidth: 3.3,
                       ),
                     ),
                     const SizedBox(
