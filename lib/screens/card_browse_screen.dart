@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
@@ -200,10 +201,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
     }
 
     final editable = isSameDay(_currentDate, _today);
-    final paperWidth = DailyLayoutMetrics.paperWidth(
-      context,
-      bottomPadding: 20,
-    );
+    final paperWidth = DailyLayoutMetrics.paperWidth(context);
     final paperHeight = paperWidth * 4 / 3;
     final promptText = _currentEntry?.prompt.isNotEmpty == true
         ? _currentEntry!.prompt
@@ -224,9 +222,9 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
               DailyLayoutMetrics.horizontalPadding,
-              DailyLayoutMetrics.topPadding,
+              DailyLayoutMetrics.dailyTopPadding,
               DailyLayoutMetrics.horizontalPadding,
-              20,
+              DailyLayoutMetrics.bottomPadding,
             ),
             child: Column(
               children: [
@@ -248,39 +246,42 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                   width: paperWidth,
                   height: paperHeight,
                   child: DailyPaperShadow(
-                    child: PageView.builder(
-                      controller: _controller,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _pageCount,
-                      onPageChanged: (index) {
-                        setState(() => _index = index);
-                      },
-                      itemBuilder: (context, index) {
-                        final date = _startDate.add(Duration(days: index));
-                        final entry = _entries[dateKey(date)];
+                    child: ColoredBox(
+                      color: kPaper,
+                      child: PageView.builder(
+                        controller: _controller,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _pageCount,
+                        onPageChanged: (index) {
+                          setState(() => _index = index);
+                        },
+                        itemBuilder: (context, index) {
+                          final date = _startDate.add(Duration(days: index));
+                          final entry = _entries[dateKey(date)];
 
-                        final isLockedEmpty =
-                            entry == null && date.isBefore(_today);
+                          final isLockedEmpty =
+                              entry == null && date.isBefore(_today);
 
-                        if (isLockedEmpty) {
-                          return const LockedEmptySheet(
+                          if (isLockedEmpty) {
+                            return const LockedEmptySheet(
+                              showShadow: false,
+                            );
+                          }
+
+                          if (entry == null) {
+                            return const DailySheet(
+                              strokes: <DoodleStroke>[],
+                              showShadow: false,
+                            );
+                          }
+
+                          return DailySheet(
+                            strokes: entry.strokes,
+                            strokeWidth: 3.3,
                             showShadow: false,
                           );
-                        }
-
-                        if (entry == null) {
-                          return const DailySheet(
-                            strokes: <DoodleStroke>[],
-                            showShadow: false,
-                          );
-                        }
-
-                        return DailySheet(
-                          strokes: entry.strokes,
-                          strokeWidth: 3.3,
-                          showShadow: false,
-                        );
-                      },
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -289,7 +290,8 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                 ),
                 SizedBox(
                   height: DailyLayoutMetrics.noteSlotHeight,
-                  child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 14),
                     child: SizedBox(
                       width: paperWidth,
                       child: _currentEntry == null || _currentEntry!.note.isEmpty
@@ -301,7 +303,7 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                               textAlign: TextAlign.center,
                               style: GoogleFonts.gaegu(
                                 fontSize: 18,
-                                height: 1.22,
+                                height: 1.45,
                                 color: kMutedInk,
                               ),
                             ),
@@ -337,7 +339,6 @@ class _CardBrowseScreenState extends State<CardBrowseScreen> {
                     ],
                   ),
                 ),
-                const Spacer(),
               ],
             ),
           ),
