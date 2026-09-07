@@ -324,7 +324,16 @@ class _DayCell extends StatelessWidget {
                         width: 38,
                         height: 50,
                       )
-                    : const SizedBox.shrink(),
+                    : Container(
+                        width: 4,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: isFuture
+                              ? const Color(0xFFD6D2C7)
+                              : kSoftInk,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
               ),
             ),
           ],
