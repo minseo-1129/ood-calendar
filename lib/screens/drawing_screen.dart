@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../app/theme.dart';
 import '../content/prompt_provider.dart';
 import '../data/entry_store.dart';
 import '../models/doodle_models.dart';
@@ -203,7 +202,7 @@ class _DrawingScreenState extends State<DrawingScreen> {
                               style: GoogleFonts.gaegu(
                                 fontSize: 15,
                                 height: 1,
-                                color: kPaperEdge,
+                                color: const Color(0xFFD6D2C7),
                               ),
                             ),
                           ),
